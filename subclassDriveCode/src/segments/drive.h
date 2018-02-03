@@ -26,11 +26,10 @@ private:
 
 		Joystick *stick;
 
-		double rightStickValue;
-		double leftStickValue;
-		double vel1;
-		double vel2;
-	//	double stick;
+		double *rightStickValue;
+		double *leftStickValue;
+		double *vel1;
+		double *vel2;
 public:
 	DriveManager();
 	void driveTrain();

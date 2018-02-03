@@ -15,6 +15,7 @@ private:
 
 
 	Joystick *stick;
+	XboxController *xbox;
 
 public:
 	IntakeManager();

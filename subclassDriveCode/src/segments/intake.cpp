@@ -27,21 +27,22 @@ IntakeManager::IntakeManager() {
 	srx2 = new WPI_TalonSRX(8);
 
 	this->stick = new Joystick { 0 };
+	this->xbox = new XboxController { 1 };
 
 }
 
 void IntakeManager::Intake() {
-	if (stick->GetRawButton(3)) {
+	if (xbox->GetRawButton(1)) {
 	srx1->Set(0.5);
 	srx2->Set(0.5);
 
 	}
-	else if (stick->GetRawButton(4)) {
+	else if (xbox->GetRawButton(2)) {
 
 		srx2->Set(-0.5);
 		srx1->Set(-0.5);
 	}
-	else if (!stick->GetRawButton(4) and !stick->GetRawButton(3)) {
+	else if (!xbox->GetRawButton(1) and !xbox->GetRawButton(2)) {
 		srx1->Set(0);
 		srx2->Set(0);
 	}

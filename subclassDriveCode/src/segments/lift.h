@@ -13,6 +13,20 @@ private:
 	WPI_TalonSRX *srx1;
 
 	Joystick *stick;
+	XboxController *xbox;
+
+	DigitalInput *limit;
+	DigitalInput *limit2;
+
+	int *liftValue;
+	bool *button3;
+	bool *button4;
+	double *encoder;
+	int *zero;
+	int *one;
+	int *two;
+	int *three;
+	int *four;
 public:
 	LiftManager();
 	void Lift();
