@@ -32,9 +32,10 @@ LiftManager::LiftManager() {
 	limit2 = new DigitalInput { 8 };
 
 	liftValue = new int;
-	button3 = new bool;
-	button4 = new bool;
+	button3 = new int;
+	button4 = new int;
 	encoder = new double;
+	limits = new int;
 
 	zero = new int;
 	one = new int;
@@ -54,20 +55,20 @@ void LiftManager::Lift() {
 		*liftValue = 0;
 	}
 
-	if (xbox->GetRawButton(3) and *button3) {
+	if (xbox->GetRawButton(3) and (*button3 == *one)) {
 		*liftValue = *liftValue - 1;
-		*button3 = false;
+		*button3 = 0;
 	}
 	else if (!xbox->GetRawButton(3)) {
-		*button3 = true;
+		*button3 = 1;
 	}
 
-	if (xbox->GetRawButton(4) and button4) {
+	if (xbox->GetRawButton(4) and (*button4 == *one)) {
 		*liftValue = *liftValue + 1;
-		*button4 = false;
+		*button4 = 0;
 	}
 	else if (!xbox->GetRawButton(4)) {
-		*button4 = true;
+		*button4 = 1;
 	}
 
 	if ((*liftValue == *zero) and limit->Get() and srx1->GetSensorCollection().GetQuadraturePosition() > 1000) {
@@ -130,9 +131,13 @@ void LiftManager::Lift() {
 	frc::SmartDashboard::PutNumber("bottom limit",!limit->Get());
 
 
-	if (!limit->Get()) {
+	if (!limit->Get() and (*limits == *one)) {
 		srx1->GetSensorCollection().SetQuadraturePosition(0,4);
 		*liftValue = 0;
+		*limits = 0;
+	}
+	if (limit->Get()) {
+		*limits = 1;
 	}
 
 	/*

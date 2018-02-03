@@ -33,12 +33,10 @@ IntakeManager::IntakeManager() {
 
 void IntakeManager::Intake() {
 	if (xbox->GetRawButton(1)) {
-	srx1->Set(0.5);
-	srx2->Set(0.5);
-
+		srx1->Set(0.5);
+		srx2->Set(0.5);
 	}
 	else if (xbox->GetRawButton(2)) {
-
 		srx2->Set(-0.5);
 		srx1->Set(-0.5);
 	}
