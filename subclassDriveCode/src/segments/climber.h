@@ -13,6 +13,7 @@ private:
 	WPI_TalonSRX *srx1;
 
 	Joystick *stick;
+	XboxController *xbox;
 public:
 	ClimberManager();
 	void Climber();

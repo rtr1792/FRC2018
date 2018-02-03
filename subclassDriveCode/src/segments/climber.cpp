@@ -26,10 +26,11 @@ ClimberManager::ClimberManager() {
 	srx1 = new WPI_TalonSRX(9);
 
 	this->stick = new Joystick { 0 };
+	xbox = new XboxController { 1 };
 }
 
 void ClimberManager::Climber() {
-if (stick->GetRawButton(11)) {
+if (xbox->GetRawButton(6)) {
 	this->srx1->Set(0.5);
 	}
 else {

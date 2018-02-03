@@ -30,6 +30,7 @@ private:
 	IntakeManager *intakeManager;
 
 	frc::Joystick stick { 0 };
+//	frc::XboxController xbox { 1 };
 
 	void RobotInit() {
 		m_chooser.AddDefault(kAutoNameDefault, kAutoNameDefault);
@@ -57,19 +58,39 @@ private:
 		} else {
 			// Default Auto goes here
 		}
+
+		std::string gameData;
+		gameData = frc::DriverStation::GetInstance().GetGameSpecificMessage();
+		if(gameData[0] == 'L')
+		{
+			frc::SmartDashboard::PutNumber("side",1);
+		}
+
+		else {
+			frc::SmartDashboard::PutNumber("side",2);
+		}
 	}
 
 	void TeleopInit() {}
 
 	void TeleopPeriodic() {
+		//creates a arcade drive on talons 1-4 using joystick axies 1-2
 		this->driveManager->driveTrain();
 
+		//has a climber on talon 9 controlled with button 11
 		this->climberManager->Climber();
 
+		//has a intake on talons 7,8 controlled with button 3 (in) and button 4 (out)
 		this->intakeManager->Intake();
 
+		//has a lift with talon 10 controlled with button 5 (up) and 6 (down)
 		this->liftManager->Lift();
 
+/*		bool x1 = xbox.GetRawButton(1);
+		double x2 = xbox.GetRawAxis(5);
+
+		frc::SmartDashboard::PutNumber("x1",x1);
+		frc::SmartDashboard::PutNumber("x2",x2); */
 }
 
 	void TestPeriodic() {}
