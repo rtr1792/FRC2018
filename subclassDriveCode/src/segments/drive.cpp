@@ -6,16 +6,16 @@
  */
 #include <iostream>
 #include <string>
-#include "WPILib.h"
-#include "ctre/Phoenix.h"
+#include <WPILib.h>
+#include <ctre/Phoenix.h>
 #include <Joystick.h>
 #include <IterativeRobot.h>
 #include <LiveWindow/LiveWindow.h>
 #include <SmartDashboard/SendableChooser.h>
 #include <SmartDashboard/SmartDashboard.h>
 #include <SpeedController.h>
-#include "Drive/DifferentialDrive.h"
-#include "DriverStation.h"
+#include <Drive/DifferentialDrive.h>
+#include <DriverStation.h>
 #include "drive.h"
 #include <iostream>
 #include <Encoder.h>
@@ -44,7 +44,7 @@ DriveManager::DriveManager() {
 	vel1 = new double;
 	vel2 = new double;
 
-using namespace std;
+//using namespace std;
 
 // Constructor - The default values are specified i
 
@@ -53,12 +53,12 @@ using namespace std;
 }
 
 void DriveManager::driveTrain() {
-	if (srx1->GetSensorCollection().GetQuadratureVelocity() > -srx2->GetSensorCollection().GetQuadratureVelocity() + 40) {
+/*	if (srx1->GetSensorCollection().GetQuadratureVelocity() > -srx2->GetSensorCollection().GetQuadratureVelocity() + 40) {
 		frc::SmartDashboard::PutNumber("speed problem",1);
 	}
 	else {
 		frc::SmartDashboard::PutNumber("speed problem",0);
-	}
+	} */
 
 			if (stick->GetRawButton(1) and !stick->GetRawButton(2)) {
 				*rightStickValue = stick->GetRawAxis(1) * 0.5;
@@ -88,7 +88,7 @@ void DriveManager::driveTrain() {
 	frc::SmartDashboard::PutNumber("velocity1",*vel1);
 	frc::SmartDashboard::PutNumber("velocity2",*vel2);
 
-	double m1 = srx1->Get();
+/*	double m1 = srx1->Get();
 	double m2 = srx12->Get();
 	double m3 = srx13->Get();
 	double m4 = srx2->Get();
@@ -114,7 +114,7 @@ void DriveManager::driveTrain() {
 	frc::SmartDashboard::PutNumber("c3",c3);
 	frc::SmartDashboard::PutNumber("c4",c4);
 	frc::SmartDashboard::PutNumber("c5",c5);
-	frc::SmartDashboard::PutNumber("c6",c6);
+	frc::SmartDashboard::PutNumber("c6",c6); */
 }
 
 
