@@ -22,7 +22,7 @@ private:
 	int *ld;
 	int *zero;
 	int *one; */
-	int *reverse;
+//	int *reverse;
 public:
 	IntakeManager();
 	void Intake();

@@ -44,7 +44,7 @@ LiftManager::LiftManager() {
 	three = new int;
 	four = new int;
 
-	liftValue = 0;
+//	liftValue = 0;
 	srx1->GetSensorCollection().SetQuadraturePosition(0,4);
 }
 //limit depressed = 0

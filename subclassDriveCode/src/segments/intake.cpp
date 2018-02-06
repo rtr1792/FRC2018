@@ -42,12 +42,14 @@ IntakeManager::IntakeManager() {
 	ld = new int;
 	zero = new int;
 	one = new int; */
-	reverse = new int;
+//	reverse = new int;
 }
 
 void IntakeManager::Intake() {
 //	*zero = 0;
 //	*one = 1;
+
+	frc::SmartDashboard::PutNumber("test",1);
 
 	if (xbox->GetRawButton(1)) { //and (*ld == *zero) and (*rd == *zero)) {
 		srx1->Set(0.5);
@@ -56,11 +58,11 @@ void IntakeManager::Intake() {
 	else if (xbox->GetRawButton(2)) {
 		srx2->Set(-0.5);
 		srx1->Set(-0.5);
-		*reverse = 1;
+//		*reverse = 1;
 	}
-	else if (!xbox->GetRawButton(2)) {
-		*reverse = 0;
-	}
+//	else if (!xbox->GetRawButton(2)) {
+//		*reverse = 0;
+//	}
 	else if (!xbox->GetRawButton(1) and !xbox->GetRawButton(2)) {
 		srx1->Set(0);
 		srx2->Set(0);
