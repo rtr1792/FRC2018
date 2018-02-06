@@ -19,14 +19,16 @@ private:
 	DigitalInput *limit2;
 
 	int *liftValue;
-	bool *button3;
-	bool *button4;
+	int *button3;
+	int *button4;
+	int *limits;
 	double *encoder;
 	int *zero;
 	int *one;
 	int *two;
 	int *three;
 	int *four;
+	int *dlimit;
 public:
 	LiftManager();
 	void Lift();

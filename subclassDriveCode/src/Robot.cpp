@@ -1,7 +1,7 @@
 #include <iostream>
 #include <string>
-#include "WPILib.h"
-#include "ctre/Phoenix.h"
+#include <WPILib.h>
+#include <ctre/Phoenix.h>
 #include <Joystick.h>
 #include <IterativeRobot.h>
 #include <LiveWindow/LiveWindow.h>
@@ -11,8 +11,8 @@
 #include <segments/lift.h>
 #include <SmartDashboard/SendableChooser.h>
 #include <SmartDashboard/SmartDashboard.h>
-#include "Drive/DifferentialDrive.h"
-#include "DriverStation.h"
+#include <Drive/DifferentialDrive.h>
+#include <DriverStation.h>
 
 class Robot : public frc::IterativeRobot {
 
@@ -69,6 +69,7 @@ private:
 		else {
 			frc::SmartDashboard::PutNumber("side",2);
 		}
+
 	}
 
 	void TeleopInit() {}
