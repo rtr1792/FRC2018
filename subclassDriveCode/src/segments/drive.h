@@ -8,7 +8,7 @@
 
 #ifndef SRC_SUBCLASS_DRIVE_H_
 #define SRC_SUBCLASS_DRIVE_H_
-
+#include "AHRS.h"
 
 class DriveManager {
 private:
@@ -25,11 +25,16 @@ private:
 		DifferentialDrive *m_robotDrive3;
 
 		Joystick *stick;
+		XboxController *xbox;
 
 		double *rightStickValue;
 		double *leftStickValue;
 		double *vel1;
 		double *vel2;
+		double *dis;
+		double *dis2;
+
+	    AHRS *ahrs;
 public:
 	DriveManager();
 	void driveTrain();

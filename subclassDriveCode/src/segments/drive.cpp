@@ -6,19 +6,21 @@
  */
 #include <iostream>
 #include <string>
-#include "WPILib.h"
-#include "ctre/Phoenix.h"
+#include <WPILib.h>
+#include <ctre/Phoenix.h>
 #include <Joystick.h>
 #include <IterativeRobot.h>
 #include <LiveWindow/LiveWindow.h>
 #include <SmartDashboard/SendableChooser.h>
 #include <SmartDashboard/SmartDashboard.h>
 #include <SpeedController.h>
-#include "Drive/DifferentialDrive.h"
-#include "DriverStation.h"
+#include <Drive/DifferentialDrive.h>
+#include <DriverStation.h>
 #include "drive.h"
 #include <iostream>
 #include <Encoder.h>
+#include "AHRS.h"
+#include <SPI.h>
 //n the declaration
 
 DriveManager::DriveManager() {
@@ -38,27 +40,21 @@ DriveManager::DriveManager() {
 	m_robotDrive3->SetSafetyEnabled(false);
 
 	this->stick = new Joystick{ 0 };
+	xbox = new XboxController { 1 };
 
 	rightStickValue = new double;
 	leftStickValue = new double;
 	vel1 = new double;
 	vel2 = new double;
+	dis = new double;
+	dis2 = new double;
 
-using namespace std;
-
-// Constructor - The default values are specified i
-
+	ahrs = new AHRS(SPI::Port::kMXP);
 
 
 }
 
 void DriveManager::driveTrain() {
-	if (srx1->GetSensorCollection().GetQuadratureVelocity() > -srx2->GetSensorCollection().GetQuadratureVelocity() + 40) {
-		frc::SmartDashboard::PutNumber("speed problem",1);
-	}
-	else {
-		frc::SmartDashboard::PutNumber("speed problem",0);
-	}
 
 			if (stick->GetRawButton(1) and !stick->GetRawButton(2)) {
 				*rightStickValue = stick->GetRawAxis(1) * 0.5;
@@ -72,7 +68,7 @@ void DriveManager::driveTrain() {
 			}
 
 			if (stick->GetRawButton(2)) {
-				leftStickValue = 0;
+				*leftStickValue = 0;
 			}
 			else if (!stick->GetRawButton(2) and !stick->GetRawButton(1)) {
 				*leftStickValue = stick->GetRawAxis(2);
@@ -83,10 +79,27 @@ void DriveManager::driveTrain() {
 	m_robotDrive3->ArcadeDrive(-*rightStickValue, *leftStickValue);
 
 	*vel1 = srx1->GetSensorCollection().GetQuadratureVelocity();
-	*vel2 = srx2->GetSensorCollection().GetQuadratureVelocity();
+	*vel2 = -srx2->GetSensorCollection().GetQuadratureVelocity();
+	*dis = srx1->GetSensorCollection().GetQuadraturePosition();
+	*dis2 = -srx2->GetSensorCollection().GetQuadraturePosition();
 
 	frc::SmartDashboard::PutNumber("velocity1",*vel1);
 	frc::SmartDashboard::PutNumber("velocity2",*vel2);
+	frc::SmartDashboard::PutNumber("distance",*dis);
+	frc::SmartDashboard::PutNumber("distance2",*dis2);
+
+	if (stick->GetRawButton(5)) {
+		srx1->GetSensorCollection().SetQuadraturePosition(0,4);
+		srx2->GetSensorCollection().SetQuadraturePosition(0,4);
+	}
+	//4000 = one rotation
+	//diameter = 3.94 in
+	//circumfrece = 24.7432
+
+	double encRot = (1.0 * srx1->GetSensorCollection().GetQuadraturePosition() / 4000);
+	frc::SmartDashboard::PutNumber("encRotations",encRot);
+	double distance = (encRot * 24.7432);
+	frc::SmartDashboard::PutNumber("distanceInches",distance);
 
 	double m1 = srx1->Get();
 	double m2 = srx12->Get();
@@ -115,6 +128,13 @@ void DriveManager::driveTrain() {
 	frc::SmartDashboard::PutNumber("c4",c4);
 	frc::SmartDashboard::PutNumber("c5",c5);
 	frc::SmartDashboard::PutNumber("c6",c6);
+
+	double gyro = ahrs->GetYaw();
+	frc::SmartDashboard::PutNumber("gAngle",gyro);
+
+	if (stick->GetRawButton(6)) {
+		ahrs->Reset();
+	}
 }
 
 
