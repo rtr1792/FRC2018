@@ -51,7 +51,6 @@ DriveManager::DriveManager() {
 
 	ahrs = new AHRS(SPI::Port::kMXP);
 
-
 }
 
 void DriveManager::driveTrain() {
@@ -101,6 +100,11 @@ void DriveManager::driveTrain() {
 	double distance = (encRot * 24.7432);
 	frc::SmartDashboard::PutNumber("distanceInches",distance);
 
+	double encRot2 = (1.0 * -srx2->GetSensorCollection().GetQuadraturePosition() / 4000);
+	frc::SmartDashboard::PutNumber("encRotations2",encRot2);
+	double distance2 = (encRot2 * 24.7432);
+	frc::SmartDashboard::PutNumber("distanceInches2",distance2);
+
 	double m1 = srx1->Get();
 	double m2 = srx12->Get();
 	double m3 = srx13->Get();
@@ -129,6 +133,7 @@ void DriveManager::driveTrain() {
 	frc::SmartDashboard::PutNumber("c5",c5);
 	frc::SmartDashboard::PutNumber("c6",c6);
 
+	//clockwise is positive
 	double gyro = ahrs->GetYaw();
 	frc::SmartDashboard::PutNumber("gAngle",gyro);
 

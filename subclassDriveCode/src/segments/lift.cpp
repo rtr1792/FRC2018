@@ -67,7 +67,7 @@ void LiftManager::Lift() {
 		*init = 1;
 	}
 
-	if (stick->GetRawButton(11)) {
+/*	if (stick->GetRawButton(11)) {
 		*liftValue = 0;
 	}
 	if (stick->GetRawButton(12)) {
@@ -101,7 +101,7 @@ void LiftManager::Lift() {
 	}
 	else if (!xbox->GetRawButton(3)) {
 		*button4 = 1;
-	}
+	} */
 
 	if ((*liftValue == *zero) and limit->Get() and srx1->GetSensorCollection().GetQuadraturePosition() > 1000) {
 		srx1->Set(-0.2);
@@ -179,18 +179,30 @@ void LiftManager::Lift() {
 		*dlimit = 1;
 	}
 
-	if (xbox->GetRawAxis(5) < 0.8 and xbox->GetRawAxis(5) > -0.8 and ((*liftValue > *four) or (*liftValue == *mone))) {
+	if (-xbox->GetRawAxis(5) < 0.75 and -xbox->GetRawAxis(5) > -0.2 and ((*liftValue > *four) or (*liftValue == *mone))) {
 		srx1->Set(-xbox->GetRawAxis(5));
 		srx2->Set(-xbox->GetRawAxis(5));
 	}
-	else if (xbox->GetRawAxis(5) > 0.8 and (*liftValue > *four)) {
-		srx1->Set(0.8);
-		srx2->Set(0.8);
+	else if (-xbox->GetRawAxis(5) > 0.75 and (*liftValue > *four)) {
+		srx1->Set(0.75);
+		srx2->Set(0.75);
 	}
-	else if (xbox->GetRawAxis(5) < -0.8 and (*liftValue > *four)) {
-		srx1->Set(-0.8);
-		srx2->Set(-0.8);
+	else if (-xbox->GetRawAxis(5) < -0.2 and (*liftValue > *four)) {
+		srx1->Set(-0.2);
+		srx2->Set(-0.2);
 	}
+
+	double p1 = srx1->Get();
+	double p2 = srx2->Get();
+
+	frc::SmartDashboard::PutNumber("lm1",p1);
+	frc::SmartDashboard::PutNumber("lm2",p2);
+
+	double c1 = srx1->GetOutputCurrent();
+	double c2 = srx2->GetOutputCurrent();
+
+	frc::SmartDashboard::PutNumber("lc1",c1);
+	frc::SmartDashboard::PutNumber("lc2",c2);
 }
 
 
