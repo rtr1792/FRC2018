@@ -48,6 +48,8 @@ DriveManager::DriveManager() {
 	vel2 = new double;
 	dis = new double;
 	dis2 = new double;
+	init = new int;
+	one = new int;
 
 	ahrs = new AHRS(SPI::Port::kMXP);
 

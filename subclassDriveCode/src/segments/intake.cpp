@@ -51,17 +51,17 @@ void IntakeManager::Intake() {
 
 	frc::SmartDashboard::PutNumber("test",1);
 
-	if (xbox->GetRawButton(2) and !xbox->GetRawButton(3)) { //and (*ld == *zero) and (*rd == *zero)) {
+	if (xbox->GetRawButton(2) and !xbox->GetRawButton(3) and !xbox->GetRawButton(1)) { //and (*ld == *zero) and (*rd == *zero)) {
 		srx1->Set(1);
 		srx2->Set(-1);
 	}
-	else if (!xbox->GetRawButton(2) and xbox->GetRawButton(3)) {
+	else if (!xbox->GetRawButton(2) and xbox->GetRawButton(3) and !xbox->GetRawButton(1)) {
 		srx1->Set(0.5);
 		srx2->Set(-0.5);
 	}
-	else if (xbox->GetRawButton(1)) {
-		srx2->Set(0.5);
+	else if (xbox->GetRawButton(1) and !xbox->GetRawButton(2) and !xbox->GetRawButton(3)) {
 		srx1->Set(-0.5);
+		srx2->Set(0.5);
 	}
 	else if (!xbox->GetRawButton(1) and !xbox->GetRawButton(2) and !xbox->GetRawButton(3)) {
 		srx1->Set(0);
@@ -86,6 +86,25 @@ void IntakeManager::Intake() {
 	frc::SmartDashboard::PutNumber("mm2",mm2);
 	double ultd2 = ult2->GetRangeInches();
 	frc::SmartDashboard::PutNumber("In2",ultd2);
+
+	if (xbox->GetRawButton(8) and (!xbox->GetRawButton(1) or !xbox->GetRawButton(2) or !xbox->GetRawButton(3))) {
+		if (ultd > 10) {
+			srx1->Set(0.4);
+		}
+		else if (ultd < 10) {
+			srx1->Set(0);
+		}
+
+		if (ultd2 > 10) {
+			srx2->Set(-0.4);
+		}
+		else if (ultd2 <10) {
+			srx2->Set(0);
+		}
+	}
+
+
+
 
 /*	if (ultd > ultd2 + 2) {
 		*ld = 1;

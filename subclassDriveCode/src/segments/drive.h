@@ -33,6 +33,8 @@ private:
 		double *vel2;
 		double *dis;
 		double *dis2;
+		int *init;
+		int *one;
 
 	    AHRS *ahrs;
 public:
