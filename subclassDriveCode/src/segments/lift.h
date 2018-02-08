@@ -19,6 +19,8 @@ private:
 	DigitalInput *limit;
 	DigitalInput *limit2;
 
+ 	PowerDistributionPanel *pdp;
+
 	int *liftValue;
 	int *button3;
 	int *button4;
