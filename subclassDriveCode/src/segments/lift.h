@@ -19,6 +19,8 @@ private:
 	DigitalInput *limit;
 	DigitalInput *limit2;
 
+ 	PowerDistributionPanel *pdp;
+
 	int *liftValue;
 	int *button3;
 	int *button4;
@@ -32,6 +34,8 @@ private:
 	int *dlimit;
 	int *mone;
 	int *init;
+	int *limitOveride;
+	int *limitOveride2;
 public:
 	LiftManager();
 	void Lift();
