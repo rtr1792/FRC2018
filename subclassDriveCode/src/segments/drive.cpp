@@ -48,13 +48,43 @@ DriveManager::DriveManager() {
 	vel2 = new double;
 	dis = new double;
 	dis2 = new double;
+	init = new int;
+	one = new int;
 
 	ahrs = new AHRS(SPI::Port::kMXP);
+	ahrs->Reset();
 
+	joystickDeadBandX = new double;
+	joystickDeadBandZ = new double;
 
+	joystickDeadBandX = 0;
+	joystickDeadBandZ = 0;
 }
 
 void DriveManager::driveTrain() {
+	float deadZoneThreshold = 0.3;
+
+	if((fabs(stick->GetRawAxis(0)) < deadZoneThreshold) or stick->GetRawButton(12))
+	{
+		*joystickDeadBandX = 0;
+	}
+	//Otherwise set to joystick value
+	else
+	{
+		*joystickDeadBandX = stick->GetRawAxis(0);
+	}
+
+	//Repeat of above for Z
+	if((fabs(stick->GetRawAxis(2)) < 0.25))
+	{
+		*joystickDeadBandZ = 0;
+	}
+	else
+	{
+		*joystickDeadBandZ = -stick->GetRawAxis(2);
+	}
+
+/*
 
 			if (stick->GetRawButton(1) and !stick->GetRawButton(2)) {
 				*rightStickValue = stick->GetRawAxis(1) * 0.5;
@@ -72,11 +102,8 @@ void DriveManager::driveTrain() {
 			}
 			else if (!stick->GetRawButton(2) and !stick->GetRawButton(1)) {
 				*leftStickValue = stick->GetRawAxis(2);
-			}
+			} */
 
-	m_robotDrive->ArcadeDrive(-*rightStickValue, *leftStickValue);
-	m_robotDrive2->ArcadeDrive(-*rightStickValue, *leftStickValue);
-	m_robotDrive3->ArcadeDrive(-*rightStickValue, *leftStickValue);
 
 	*vel1 = srx1->GetSensorCollection().GetQuadratureVelocity();
 	*vel2 = -srx2->GetSensorCollection().GetQuadratureVelocity();
@@ -92,7 +119,7 @@ void DriveManager::driveTrain() {
 		srx1->GetSensorCollection().SetQuadraturePosition(0,4);
 		srx2->GetSensorCollection().SetQuadraturePosition(0,4);
 	}
-	//4000 = one rotation
+	//4000 = one rotation ?4096
 	//diameter = 3.94 in
 	//circumfrece = 24.7432
 
@@ -100,6 +127,11 @@ void DriveManager::driveTrain() {
 	frc::SmartDashboard::PutNumber("encRotations",encRot);
 	double distance = (encRot * 24.7432);
 	frc::SmartDashboard::PutNumber("distanceInches",distance);
+
+	double encRot2 = (1.0 * -srx2->GetSensorCollection().GetQuadraturePosition() / 4000);
+	frc::SmartDashboard::PutNumber("encRotations2",encRot2);
+	double distance2 = (encRot2 * 24.7432);
+	frc::SmartDashboard::PutNumber("distanceInches2",distance2);
 
 	double m1 = srx1->Get();
 	double m2 = srx12->Get();
@@ -129,12 +161,28 @@ void DriveManager::driveTrain() {
 	frc::SmartDashboard::PutNumber("c5",c5);
 	frc::SmartDashboard::PutNumber("c6",c6);
 
+	//clockwise is positive
 	double gyro = ahrs->GetYaw();
+	double want = 0;
+	double k = -0.09;
 	frc::SmartDashboard::PutNumber("gAngle",gyro);
 
 	if (stick->GetRawButton(6)) {
 		ahrs->Reset();
+		want = gyro;
 	}
+
+	if (stick->GetRawAxis(2) == 0) {
+		*leftStickValue = ((gyro - want) * k);
+	}
+	else {
+		*leftStickValue = stick->GetRawAxis(2);
+		want = gyro;
+	}
+
+	m_robotDrive->ArcadeDrive(-*joystickDeadBandX, *joystickDeadBandZ);
+	m_robotDrive2->ArcadeDrive(-*joystickDeadBandX, *joystickDeadBandZ);
+	m_robotDrive3->ArcadeDrive(-*joystickDeadBandX, *joystickDeadBandZ);
 }
 
 
