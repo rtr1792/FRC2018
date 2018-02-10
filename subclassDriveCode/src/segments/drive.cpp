@@ -48,9 +48,10 @@ DriveManager::DriveManager() {
 	vel2 = new double;
 	dis = new double;
 	dis2 = new double;
+	init = new int;
+	one = new int;
 
 	ahrs = new AHRS(SPI::Port::kMXP);
-
 
 }
 
@@ -92,7 +93,7 @@ void DriveManager::driveTrain() {
 		srx1->GetSensorCollection().SetQuadraturePosition(0,4);
 		srx2->GetSensorCollection().SetQuadraturePosition(0,4);
 	}
-	//4000 = one rotation
+	//4000 = one rotation ?4096
 	//diameter = 3.94 in
 	//circumfrece = 24.7432
 
@@ -100,6 +101,11 @@ void DriveManager::driveTrain() {
 	frc::SmartDashboard::PutNumber("encRotations",encRot);
 	double distance = (encRot * 24.7432);
 	frc::SmartDashboard::PutNumber("distanceInches",distance);
+
+	double encRot2 = (1.0 * -srx2->GetSensorCollection().GetQuadraturePosition() / 4000);
+	frc::SmartDashboard::PutNumber("encRotations2",encRot2);
+	double distance2 = (encRot2 * 24.7432);
+	frc::SmartDashboard::PutNumber("distanceInches2",distance2);
 
 	double m1 = srx1->Get();
 	double m2 = srx12->Get();
@@ -129,6 +135,7 @@ void DriveManager::driveTrain() {
 	frc::SmartDashboard::PutNumber("c5",c5);
 	frc::SmartDashboard::PutNumber("c6",c6);
 
+	//clockwise is positive
 	double gyro = ahrs->GetYaw();
 	frc::SmartDashboard::PutNumber("gAngle",gyro);
 
