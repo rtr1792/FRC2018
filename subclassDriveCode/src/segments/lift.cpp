@@ -54,9 +54,19 @@ LiftManager::LiftManager() {
 
 	srx1->GetSensorCollection().SetQuadraturePosition(0,4);
 }
+
+double xb;
 //12,3
 //limit depressed = 0
 void LiftManager::Lift() {
+	if (-xbox->GetRawAxis(5) < 0.05 and -xbox->GetRawAxis(5) > -0.05) {
+		xb = 0;
+	}
+	else {
+		xb = -xbox->GetRawAxis(5);
+	}
+
+
 	*zero = 0;
 	*one = 1;
 	*two = 2;
@@ -109,6 +119,7 @@ void LiftManager::Lift() {
 		*button4 = 1;
 	}
 
+	/*
 	if ((*liftValue == *zero) and limit->Get() and -srx2->GetSensorCollection().GetQuadraturePosition() > 500) {
 		srx1->Set(-0.5);
 		srx2->Set(-0.5);
@@ -169,6 +180,7 @@ void LiftManager::Lift() {
 		srx1->Set(0.01);
 		srx2->Set(0.01);
 	}
+	*/
 
 	frc::SmartDashboard::PutNumber("lift",*liftValue);
 
@@ -199,35 +211,29 @@ void LiftManager::Lift() {
 		*dlimit = 1;
 	}
 
-//	if (-xbox->GetRawAxis(5) < 1 and -xbox->GetRawAxis(5) > -0.2 and ((*liftValue > *four) or (*liftValue == *mone))) { //and (((*limitOveride == *one) and (*limitOveride2 == *one)) or (limit->Get() and limit2->Get())) ) {
-		srx1->Set(-xbox->GetRawAxis(5));
-		srx2->Set(-xbox->GetRawAxis(5));
-/*	}
-	else if (-xbox->GetRawAxis(5) > 1 and (*liftValue > *four)) { //and (((*limitOveride == *one) and (*limitOveride2 == *one)) or (limit->Get() and limit2->Get()))) {
-		srx1->Set(1);
-		srx2->Set(1);
-	}
-	else if (-xbox->GetRawAxis(5) < -0.2 and (*liftValue > *four)) { //and (((*limitOveride == *one) and (*limitOveride2 == *one)) or (limit->Get() and limit2->Get()))) {
-		srx1->Set(-0.2);
-		srx2->Set(-0.2);
-	} */
-/*	else if (!limit->Get() and ((*liftValue > *four) or (*liftValue == *mone)) and -xbox->GetRawAxis(5) < 0){
-		srx1->Set(0);
-		srx2->Set(0);
-		*limitOveride = 0;
-	}
-	else if (!limit2->Get() and ((*liftValue > *four) or (*liftValue == *mone)) and -xbox->GetRawAxis(5) > 0){
-		srx1->Set(0);
-		srx2->Set(0);
-		*limitOveride2 = 0;
-	}
-	else if (!limit->Get() and  -xbox->GetRawAxis(5) > 0) {
-		*limitOveride = 1;
-	}
-	else if (!limit2->Get() and  -xbox->GetRawAxis(5) < 0) {
-		*limitOveride2 = 1;
-	}
-*/
+
+
+		/*if (!limit->Get() and -xbox->GetRawAxis(5) < 0) {
+			srx1->Set(0);
+			srx2->Set(0);
+		}
+		if (!limit->Get() and -xbox->GetRawAxis(5) > 0) {*/
+			srx1->Set(xb);
+			srx2->Set(xb);
+		//}
+		/*if (!limit2->Get() and -xbox->GetRawAxis(5) > 0) {
+			srx1->Set(0);
+			srx2->Set(0);
+		}
+		if (!limit2->Get() and -xbox->GetRawAxis(5) < 0) {
+			srx1->Set(xb);
+			srx2->Set(xb);
+		}
+		if (limit->Get() and limit->Get()) {
+			srx1->Set(xb);
+			srx2->Set(xb);
+		}*/
+
 
 	double p1 = srx1->Get();
 	double p2 = srx2->Get();

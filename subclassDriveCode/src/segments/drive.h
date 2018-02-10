@@ -36,8 +36,6 @@ private:
 		int *init;
 		int *one;
 
-		double *joystickDeadBandX;
-		double *joystickDeadBandZ;
 
 	    AHRS *ahrs;
 public:
