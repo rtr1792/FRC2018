@@ -21,16 +21,39 @@
 #include <Encoder.h>
 #include "lift.h"
 #include <DigitalInput.h>
+//#include <PowerDistributionPanel.h>
 
 LiftManager::LiftManager() {
+	double kTimeoutMs = 10;
+	double kPIDLoopIdx = 0;
+
 	srx1 = new WPI_TalonSRX(10);
 	srx2 = new WPI_TalonSRX(11);
+
+	srx1->Set(ControlMode::Follower, 11);
+	srx2->ConfigSelectedFeedbackSensor(FeedbackDevice::CTRE_MagEncoder_Relative, kPIDLoopIdx, kTimeoutMs);
+	srx2->SetSensorPhase(true);
+	srx2->SetInverted(false);
+	srx2->ConfigAllowableClosedloopError(0, 0, kTimeoutMs);
+
+
+	/* set the peak and nominal outputs, 12V means full */
+	srx2->ConfigNominalOutputForward(0, kTimeoutMs);
+	srx2->ConfigNominalOutputReverse(0, kTimeoutMs);
+	srx2->ConfigPeakOutputForward(10, kTimeoutMs);
+	srx2->ConfigPeakOutputReverse(-10 , kTimeoutMs);
+
+	/* set closed loop gains in slot0 */
+	srx2->Config_kF(kPIDLoopIdx, 0.0, kTimeoutMs);
+	srx2->Config_kP(kPIDLoopIdx, 0.1, kTimeoutMs);
+	srx2->Config_kI(kPIDLoopIdx, 0.0, kTimeoutMs);
+	srx2->Config_kD(kPIDLoopIdx, 0.0, kTimeoutMs);
 
 	this->stick = new Joystick { 0 };
 	xbox = new XboxController { 1 };
 
-	limit = new DigitalInput { 9 };
-	limit2 = new DigitalInput { 8 };
+	limit = new DigitalInput { 1 };
+	limit2 = new DigitalInput { 0 };
 
 	liftValue = new int;
 	button3 = new int;
@@ -39,158 +62,84 @@ LiftManager::LiftManager() {
 	limits = new int;
 	dlimit = new int;
 
-	zero = new int;
-	one = new int;
-	two = new int;
-	three = new int;
-	four = new int;
-	mone = new int;
 	init = new int;
+	limitOveride = new int;
+	limitOveride2 = new int;
 
-	srx1->GetSensorCollection().SetQuadraturePosition(0,4);
+	//srx1->GetSensorCollection().SetQuadraturePosition(0,4);
 }
+
+double xb;
+//12,3
 //limit depressed = 0
 void LiftManager::Lift() {
-	*zero = 0;
-	*one = 1;
-	*two = 2;
-	*three = 3;
-	*four = 4;
-	*mone = -1;
-
-	if (*init > *one or *init < *zero) {
-		*init = 0;
+	if (-xbox->GetRawAxis(5) < 0.05 and -xbox->GetRawAxis(5) > -0.05) {
+		xb = 0;
+	}
+	else {
+		xb = -xbox->GetRawAxis(5);
+	}
+	if(xbox->GetRawButton(5)){
+		srx2->Set(ControlMode::PercentOutput, xb);
 	}
 
-	if (*init == *zero) {
-		*liftValue = -1;
-		*init = 1;
+	if (stick->GetRawButton(4)) {
+		srx2->Set(ControlMode::Position, 10000);
+	}
+	if (stick->GetRawButton(3)) {
+		srx2->Set(ControlMode::Position, 0); //100 too fast //10 too fast //2 nothing
 	}
 
-	if (stick->GetRawButton(11)) {
-		*liftValue = 0;
-	}
-	if (stick->GetRawButton(12)) {
-		*liftValue = 1;
-	}
-	if (stick->GetRawButton(10)) {
-		*liftValue = 2;
-	}
-	if (stick->GetRawButton(8)) {
-		*liftValue = 3;
-	}
-	if (stick->GetRawButton(7)) {
-		*liftValue = 4;
-	}
-	if (stick->GetRawButton(9)) {
-		*liftValue = -1;
-	}
+	//frc::SmartDashboard::PutNumber("LiftSensorHealth", srx1->GetFaults(ctre::phoenix::motorcontrol::faults::PulseWidthEncodedPosition));
 
-
-	if (xbox->GetRawButton(4) and (*button3 == *one)) {
-		*liftValue = *liftValue - 1;
-		*button3 = 0;
-	}
-	else if (!xbox->GetRawButton(4)) {
-		*button3 = 1;
-	}
-
-	if (xbox->GetRawButton(3) and (*button4 == *one)) {
-		*liftValue = *liftValue + 1;
-		*button4 = 0;
-	}
-	else if (!xbox->GetRawButton(3)) {
-		*button4 = 1;
-	}
-
-	if ((*liftValue == *zero) and limit->Get() and srx1->GetSensorCollection().GetQuadraturePosition() > 1000) {
-		srx1->Set(-0.2);
-	}
-	else if ((*liftValue == *zero) and (!limit->Get() or srx1->GetSensorCollection().GetQuadraturePosition() < 1000)) {
-		srx1->Set(0);
-	}
-
-	if ((*liftValue == *one) and srx1->GetSensorCollection().GetQuadraturePosition() < 1001 and limit2->Get()) {
-		srx1->Set(0.2);
-	}
-	else if ((*liftValue == *one) and srx1->GetSensorCollection().GetQuadraturePosition() > 2000 and limit->Get()) {
-		srx1->Set(-0.2);
-	}
-	else if (((*liftValue == *one) and (srx1->GetSensorCollection().GetQuadraturePosition() < 2001 and srx1->GetSensorCollection().GetQuadraturePosition() > 1001))) {
-		srx1->Set(0);
-	}
-
-	if ((*liftValue == *two) and srx1->GetSensorCollection().GetQuadraturePosition() < 2001 and limit2->Get()) {
-		srx1->Set(0.2);
-	}
-	else if ((*liftValue == *two) and srx1->GetSensorCollection().GetQuadraturePosition() > 3000 and limit->Get()) {
-		srx1->Set(-0.2);
-	}
-	else if ((*liftValue == *two) and srx1->GetSensorCollection().GetQuadraturePosition() < 3001 and srx1->GetSensorCollection().GetQuadraturePosition() > 2001) {
-		srx1->Set(0);
-	}
-
-	if ((*liftValue == *three) and srx1->GetSensorCollection().GetQuadraturePosition() < 3001 and limit2->Get()) {
-		srx1->Set(0.2);
-	}
-	else if ((*liftValue == *three) and srx1->GetSensorCollection().GetQuadraturePosition() > 4000 and limit->Get()) {
-		srx1->Set(-0.2);
-	}
-	else if ((*liftValue == *three) and srx1->GetSensorCollection().GetQuadraturePosition() > 3001 and srx1->GetSensorCollection().GetQuadraturePosition() < 4001) {
-		srx1->Set(0);
-	}
-
-	if ((*liftValue == *four) and srx1->GetSensorCollection().GetQuadraturePosition() < 4001 and limit2->Get()) {
-		srx1->Set(0.2);
-	}
-	else if ((*liftValue == *four) and srx1->GetSensorCollection().GetQuadraturePosition() > 5000 and limit2->Get()) {
-		srx1->Set(-0.2);
-	}
-	else if (((*liftValue == *four) and (srx1->GetSensorCollection().GetQuadraturePosition() < 5000 and srx1->GetSensorCollection().GetQuadraturePosition() > 4001))) {
-		srx1->Set(0);
-	}
-
-	frc::SmartDashboard::PutNumber("lift",*liftValue);
-
-	*encoder = srx1->GetSensorCollection().GetQuadraturePosition();
+	*encoder = -srx2->GetSensorCollection().GetQuadraturePosition();
 	frc::SmartDashboard::PutNumber("liftEnc",*encoder);
+	frc::SmartDashboard::PutNumber("liftEncRot",*encoder/4096);
 
 	if (xbox->GetRawButton(9)) {
-		srx1->GetSensorCollection().SetQuadraturePosition(0,4);
+		srx2->GetSensorCollection().SetQuadraturePosition(0,4);
 	}
 
 	frc::SmartDashboard::PutNumber("top limit",!limit2->Get());
 	frc::SmartDashboard::PutNumber("bottom limit",!limit->Get());
 
 
-	if (!limit->Get() and (*limits == *one)) {
-		srx1->GetSensorCollection().SetQuadraturePosition(0,4);
-		*liftValue = 0;
-		*limits = 0;
-	}
-	else if (limit->Get()) {
-		*limits = 1;
-	}
+		/*if (!limit->Get() and -xbox->GetRawAxis(5) < 0) {
+			srx1->Set(0);
+			srx2->Set(0);
+		}
+		if (!limit->Get() and -xbox->GetRawAxis(5) > 0) {*/
+			//srx1->Set(xb);
+			//srx2->Set(xb);
+		//}
+		/*if (!limit2->Get() and -xbox->GetRawAxis(5) > 0) {
+			srx1->Set(0);
+			srx2->Set(0);
+		}
+		if (!limit2->Get() and -xbox->GetRawAxis(5) < 0) {
+			srx1->Set(xb);
+			srx2->Set(xb);
+		}
+		if (limit->Get() and limit->Get()) {
+			srx1->Set(xb);
+			srx2->Set(xb);
+		}*/
 
-	if (!limit2->Get() and (*dlimit == *one)) {
-		*dlimit = 0;
-	}
-	else if (limit2->Get()) {
-		*dlimit = 1;
-	}
 
-	if (xbox->GetRawAxis(5) < 0.8 and xbox->GetRawAxis(5) > -0.8 and ((*liftValue > *four) or (*liftValue == *mone))) {
-		srx1->Set(-xbox->GetRawAxis(5));
-		srx2->Set(-xbox->GetRawAxis(5));
-	}
-	else if (xbox->GetRawAxis(5) > 0.8 and (*liftValue > *four)) {
-		srx1->Set(0.8);
-		srx2->Set(0.8);
-	}
-	else if (xbox->GetRawAxis(5) < -0.8 and (*liftValue > *four)) {
-		srx1->Set(-0.8);
-		srx2->Set(-0.8);
-	}
+	double p1 = srx1->Get();
+	double p2 = srx2->Get();
+
+	frc::SmartDashboard::PutNumber("lm1",p1);
+	frc::SmartDashboard::PutNumber("lm2",p2);
+
+	double c1 = srx1->GetOutputCurrent();
+	double c2 = srx2->GetOutputCurrent();
+
+	frc::SmartDashboard::PutNumber("lc1",c1);
+	frc::SmartDashboard::PutNumber("lc2",c2);
+
+	//10003 switch
+	//35780
 }
 
 

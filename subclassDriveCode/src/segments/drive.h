@@ -21,8 +21,6 @@ private:
 		WPI_TalonSRX *srx22;
 
 		DifferentialDrive *m_robotDrive;
-		DifferentialDrive *m_robotDrive2;
-		DifferentialDrive *m_robotDrive3;
 
 		Joystick *stick;
 		XboxController *xbox;
@@ -33,6 +31,9 @@ private:
 		double *vel2;
 		double *dis;
 		double *dis2;
+		int *init;
+		int *one;
+
 
 	    AHRS *ahrs;
 public:

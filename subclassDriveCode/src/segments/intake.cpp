@@ -24,17 +24,18 @@
 #include <Ultrasonic.h>
 
 IntakeManager::IntakeManager() {
-	srx1 = new WPI_TalonSRX(7);
-	srx2 = new WPI_TalonSRX(8);
+	srx2 = new WPI_TalonSRX(7);
+	srx1 = new WPI_TalonSRX(8);
 
 	this->stick = new Joystick { 0 };
 	this->xbox = new XboxController { 1 };
-
-	ult = new Ultrasonic(7,6);
+//output,input
+	ult = new Ultrasonic(2,3);
 	ult->SetAutomaticMode(true);
 	ult->SetEnabled(true);
 
-	ult2 = new Ultrasonic(5,4);
+	//left
+	ult2 = new Ultrasonic(6,7);
 	ult2->SetAutomaticMode(true);
 	ult2->SetEnabled(true);
 
@@ -51,17 +52,17 @@ void IntakeManager::Intake() {
 
 	frc::SmartDashboard::PutNumber("test",1);
 
-	if (xbox->GetRawButton(2) and !xbox->GetRawButton(3)) { //and (*ld == *zero) and (*rd == *zero)) {
-		srx1->Set(1);
-		srx2->Set(-1);
+	if (xbox->GetRawButton(2) and !xbox->GetRawButton(3) and !xbox->GetRawButton(1)) { //and (*ld == *zero) and (*rd == *zero)) {
+		srx1->Set(-1);
+		srx2->Set(1);
 	}
-	else if (!xbox->GetRawButton(2) and xbox->GetRawButton(3)) {
+	else if (!xbox->GetRawButton(2) and xbox->GetRawButton(3) and !xbox->GetRawButton(1)) {
+		srx1->Set(-0.5);
+		srx2->Set(0.5);
+	}
+	else if (xbox->GetRawButton(1) and !xbox->GetRawButton(2) and !xbox->GetRawButton(3)) {
 		srx1->Set(0.5);
 		srx2->Set(-0.5);
-	}
-	else if (xbox->GetRawButton(1)) {
-		srx2->Set(0.5);
-		srx1->Set(-0.5);
 	}
 	else if (!xbox->GetRawButton(1) and !xbox->GetRawButton(2) and !xbox->GetRawButton(3)) {
 		srx1->Set(0);
@@ -86,6 +87,20 @@ void IntakeManager::Intake() {
 	frc::SmartDashboard::PutNumber("mm2",mm2);
 	double ultd2 = ult2->GetRangeInches();
 	frc::SmartDashboard::PutNumber("In2",ultd2);
+
+	double k = 0.07;
+
+	if ((!xbox->GetRawButton(1) or !xbox->GetRawButton(2)) or !xbox->GetRawButton(3)) {
+		if ((ultd > 4.2 and ultd < 13)) {
+			srx1->Set(ultd * k);
+		}
+
+		if ((ultd2 > 4.2 and ultd2 < 13)) {
+			srx2->Set(-(ultd2 * k));
+		}
+	}
+
+
 
 /*	if (ultd > ultd2 + 2) {
 		*ld = 1;

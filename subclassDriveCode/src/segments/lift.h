@@ -19,19 +19,17 @@ private:
 	DigitalInput *limit;
 	DigitalInput *limit2;
 
+ //	PowerDistributionPanel *pdp;
+
 	int *liftValue;
 	int *button3;
 	int *button4;
 	int *limits;
 	double *encoder;
-	int *zero;
-	int *one;
-	int *two;
-	int *three;
-	int *four;
 	int *dlimit;
-	int *mone;
 	int *init;
+	int *limitOveride;
+	int *limitOveride2;
 public:
 	LiftManager();
 	void Lift();
