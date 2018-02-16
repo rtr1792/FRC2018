@@ -13,13 +13,16 @@ private:
 	WPI_TalonSRX *srx1;
 	WPI_TalonSRX *srx2;
 
+	WPI_TalonSRX *DriveSRX1;
+	WPI_TalonSRX *DriveSRX2;
+
 	Joystick *stick;
 	XboxController *xbox;
 
 	DigitalInput *limit;
 	DigitalInput *limit2;
 
- //	PowerDistributionPanel *pdp;
+	Timer *timer;
 
 	int *liftValue;
 	int *button3;

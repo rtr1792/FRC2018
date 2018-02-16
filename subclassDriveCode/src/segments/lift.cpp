@@ -22,30 +22,32 @@
 #include "lift.h"
 #include <DigitalInput.h>
 //#include <PowerDistributionPanel.h>
+#include "Timer.h"
+#include <Math.h>
 
 LiftManager::LiftManager() {
 	double kTimeoutMs = 10;
 	double kPIDLoopIdx = 0;
 
-	srx1 = new WPI_TalonSRX(10);
-	srx2 = new WPI_TalonSRX(11);
+	srx1 = new WPI_TalonSRX(10); //Slave
+	srx2 = new WPI_TalonSRX(11); //Has Encoder - Master
 
 	srx1->Set(ControlMode::Follower, 11);
 	srx2->ConfigSelectedFeedbackSensor(FeedbackDevice::CTRE_MagEncoder_Relative, kPIDLoopIdx, kTimeoutMs);
 	srx2->SetSensorPhase(true);
 	srx2->SetInverted(false);
-	srx2->ConfigAllowableClosedloopError(0, 0, kTimeoutMs);
+	srx2->ConfigAllowableClosedloopError(kPIDLoopIdx, 0, kTimeoutMs);
 
 
 	/* set the peak and nominal outputs, 12V means full */
 	srx2->ConfigNominalOutputForward(0, kTimeoutMs);
 	srx2->ConfigNominalOutputReverse(0, kTimeoutMs);
 	srx2->ConfigPeakOutputForward(10, kTimeoutMs);
-	srx2->ConfigPeakOutputReverse(-10 , kTimeoutMs);
+	srx2->ConfigPeakOutputReverse(-4 , kTimeoutMs);
 
 	/* set closed loop gains in slot0 */
 	srx2->Config_kF(kPIDLoopIdx, 0.0, kTimeoutMs);
-	srx2->Config_kP(kPIDLoopIdx, 0.1, kTimeoutMs);
+	srx2->Config_kP(kPIDLoopIdx, 0.08, kTimeoutMs);
 	srx2->Config_kI(kPIDLoopIdx, 0.0, kTimeoutMs);
 	srx2->Config_kD(kPIDLoopIdx, 0.0, kTimeoutMs);
 
@@ -67,9 +69,23 @@ LiftManager::LiftManager() {
 	limitOveride2 = new int;
 
 	//srx1->GetSensorCollection().SetQuadraturePosition(0,4);
-}
+	//Timer* timer;
+	timer = new Timer();
+	timer->Start();
 
+	//Auto Lift
+	DriveSRX1 =  new WPI_TalonSRX(1);
+	DriveSRX2 =  new WPI_TalonSRX(4);
+
+}
 double xb;
+double heatpreventmoveamount = 1000;
+bool goback = false;
+double oldpos = 0;
+double dtvel = 0;
+double possetto = 0;
+int RisetoFall = -1;
+int RisetoRise = -1;
 //12,3
 //limit depressed = 0
 void LiftManager::Lift() {
@@ -79,18 +95,26 @@ void LiftManager::Lift() {
 	else {
 		xb = -xbox->GetRawAxis(5);
 	}
-	if(xbox->GetRawButton(5)){
+
+
+	if(xbox->GetRawButton(5) and ((limit->Get() and limit2->Get()) or ((!limit->Get() and xb > 0) or (!limit2->Get() and xb < 0)))){
 		srx2->Set(ControlMode::PercentOutput, xb);
 	}
-
-	if (stick->GetRawButton(4)) {
-		srx2->Set(ControlMode::Position, 10000);
+	if(stick->GetRawButton(8)) {
+		srx2->Set(ControlMode::Position, 36535); //Scale Height -2 Just Incase
+		timer->Reset();
 	}
-	if (stick->GetRawButton(3)) {
-		srx2->Set(ControlMode::Position, 0); //100 too fast //10 too fast //2 nothing
+	if (stick->GetRawButton(10)) {
+		srx2->Set(ControlMode::Position, 10000); //Switch Height
+		timer->Reset();
 	}
-
-	//frc::SmartDashboard::PutNumber("LiftSensorHealth", srx1->GetFaults(ctre::phoenix::motorcontrol::faults::PulseWidthEncodedPosition));
+	if (stick->GetRawButton(12)) {
+		srx2->Set(ControlMode::Position, 0); //Bottom
+		timer->Reset();
+	}
+	if(false){
+		srx2->Set(ControlMode::Position, 0); //Neutral Height
+	}
 
 	*encoder = -srx2->GetSensorCollection().GetQuadraturePosition();
 	frc::SmartDashboard::PutNumber("liftEnc",*encoder);
@@ -102,14 +126,21 @@ void LiftManager::Lift() {
 
 	frc::SmartDashboard::PutNumber("top limit",!limit2->Get());
 	frc::SmartDashboard::PutNumber("bottom limit",!limit->Get());
+		if(!limit2->Get()){
+			srx2->GetSensorCollection().SetQuadraturePosition(36535, 10); //Set to Top - 10ms Allowed Time
+		}
 
+		if(!limit->Get()){
+			srx2->GetSensorCollection().SetQuadraturePosition(0, 10); //Set to Zero - 10ms Allowed Time
+		}
 
 		/*if (!limit->Get() and -xbox->GetRawAxis(5) < 0) {
 			srx1->Set(0);
 			srx2->Set(0);
 		}
 		if (!limit->Get() and -xbox->GetRawAxis(5) > 0) {*/
-			//srx1->Set(xb);
+			//srx1->Set(xb);		srx2->Set(ControlMode::PercentOutput, xb);
+
 			//srx2->Set(xb);
 		//}
 		/*if (!limit2->Get() and -xbox->GetRawAxis(5) > 0) {
@@ -140,6 +171,48 @@ void LiftManager::Lift() {
 
 	//10003 switch
 	//35780
+
+	//Heat Check Code
+	if (timer->Get() > 25 && !goback) {
+		timer->Reset();
+		oldpos = -srx2->GetSensorCollection().GetQuadraturePosition();
+		if(-srx2->GetSensorCollection().GetQuadraturePosition() < 1000){
+			srx2->Set(ControlMode::Position, (-srx2->GetSensorCollection().GetQuadraturePosition()-heatpreventmoveamount)); // Go Down 1000
+		}
+		else{
+			srx2->Set(ControlMode::Position, (-srx2->GetSensorCollection().GetQuadraturePosition()+heatpreventmoveamount)); // Go Up 1000
+		}
+	}
+	if (goback && timer->Get() > 5){
+		srx2->Set(ControlMode::Position, oldpos); // Go Back to Original
+	}
+	//End of Heat Check Code
+
+	//AutoLift
+	oldpos = -srx2->GetSensorCollection().GetQuadraturePosition();
+	dtvel = fabs(DriveSRX1->GetSensorCollection().GetQuadratureVelocity()) + fabs(DriveSRX1->GetSensorCollection().GetQuadratureVelocity());
+	possetto = srx2->GetClosedLoopTarget(0);
+	if(possetto == 0 && dtvel > 0){
+		srx2->Set(ControlMode::Position, 2000); //Neutral Height
+	}
+	if(xbox->GetRawButton(1) && possetto == 2000){
+		srx2->Set(ControlMode::Position, 0);
+	}
+	//End of Auto Lift and Down
+
+	//Check Encoder Health
+	RisetoFall = srx2->GetSensorCollection().GetPulseWidthRiseToFallUs();
+	RisetoRise = srx2->GetSensorCollection().GetPulseWidthRiseToRiseUs();
+	frc::SmartDashboard::PutNumber("RisetoFall", RisetoFall);
+	frc::SmartDashboard::PutNumber("RisetoRise", RisetoRise);
+	if(RisetoFall == 0 || RisetoRise == 0){
+		srx2->Set(ControlMode::PercentOutput, 0);
+		xbox->SetRumble(frc::GenericHID::kRightRumble, 100);
+		xbox->SetRumble(frc::GenericHID::kLeftRumble, 100);
+	}
+	//End of Encoder Health Check
+
+
 }
 
 
