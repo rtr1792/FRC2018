@@ -41,14 +41,10 @@ IntakeManager::IntakeManager() {
 
 	rd = new int;
 	ld = new int;
-	zero = new int;
-	one = new int;
 	reverse = new int;
 }
 
 void IntakeManager::Intake() {
-	*zero = 0;
-	*one = 1;
 
 	frc::SmartDashboard::PutNumber("test",1);
 
@@ -100,6 +96,8 @@ void IntakeManager::Intake() {
 		}
 	}
 
+	frc::SmartDashboard::PutNumber("intakeC",srx1->GetOutputCurrent());
+	frc::SmartDashboard::PutNumber("intakeC2",srx2->GetOutputCurrent());
 
 
 /*	if (ultd > ultd2 + 2) {
@@ -116,6 +114,11 @@ void IntakeManager::Intake() {
 		*rd = 0;
 	}
 */
+}
+
+void IntakeManager::Intakemove(int speed) {
+	srx1->Set(speed);
+	srx2->Set(-speed);
 }
 
 

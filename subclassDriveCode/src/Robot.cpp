@@ -70,6 +70,8 @@ private:
 			frc::SmartDashboard::PutNumber("side",2);
 		}
 
+//		this->liftManager->Liftmove(1000);
+//		this->intakeManager->Intakemove(0.5);
 	}
 
 	void TeleopInit() {}
