@@ -64,13 +64,17 @@ void IntakeManager::Intake() {
 		srx1->Set(0);
 		srx2->Set(0);
 	}
-	else if(!xbox->GetRawButton(1) and !xbox->GetRawButton(2) and !xbox->GetRawButton(3) and xbox->GetRawButton(6) and xbox->GetRawButton(4)){
+	else if(xbox->GetRawButton(4) && !xbox->GetRawButton(6)){
+		srx1->Set(1);
+		srx2->Set(-1);
+	}
+	else if(xbox->GetRawButton(4) && xbox->GetRawButton(6)){
 		srx1->Set(0.5);
 		srx2->Set(0.5);
 	}
-	else if(!xbox->GetRawButton(1) and !xbox->GetRawButton(2) and !xbox->GetRawButton(3) and xbox->GetRawButton(6) and xbox->GetRawButton(4)){
-		srx1->Set(1);
-		srx2->Set(-1);
+	else{
+		srx1->Set(0);
+		srx2->Set(0);
 	}
 
 /*

@@ -277,7 +277,7 @@ void DriveManager::driveTrain() {
 	}
 	frc::SmartDashboard::PutNumber("want",want);
 
-	if(Pitch > 45 || -45 > Pitch){
+	if(Pitch > 15 || -15 > Pitch){
 		x = x + (gyro) * tiltk;
 	}
 

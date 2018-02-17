@@ -42,14 +42,15 @@ LiftManager::LiftManager() {
 	/* set the peak and nominal outputs, 12V means full */
 	srx1->ConfigNominalOutputForward(0, kTimeoutMs);
 	srx1->ConfigNominalOutputReverse(0, kTimeoutMs);
-	srx1->ConfigPeakOutputForward(12, kTimeoutMs);
-	srx1->ConfigPeakOutputReverse(-1 , kTimeoutMs);
+	srx1->ConfigPeakOutputForward(1, kTimeoutMs);
+	srx1->ConfigPeakOutputReverse(-0.5 , kTimeoutMs);
 
 	/* set closed loop gains in slot0 */
 	srx1->Config_kF(kPIDLoopIdx, 0.0, kTimeoutMs);
-	srx1->Config_kP(kPIDLoopIdx, 0.1, kTimeoutMs);
+	srx1->Config_kP(kPIDLoopIdx, 1.25, kTimeoutMs);
 	srx1->Config_kI(kPIDLoopIdx, 0.0, kTimeoutMs);
 	srx1->Config_kD(kPIDLoopIdx, 0.0, kTimeoutMs);
+
 
 	this->stick = new Joystick { 0 };
 	xbox = new XboxController { 1 };
@@ -112,12 +113,17 @@ void LiftManager::Lift() {
 		srx1->Set(ControlMode::PercentOutput, xb);
 	}
 	if(pov == 0) {
-		srx1->Set(ControlMode::Position, 36535); //Scale Height -2 Just Incase
+		srx1->Set(ControlMode::Position, 33000); //Scale Height -2 Just Incase
 		timer->Reset();
 		goback = false;
 	}
 	if (pov == 90) {
-		srx1->Set(ControlMode::Position, 15000); //Switch Height
+		srx1->Set(ControlMode::Position, 10000); //Switch Height
+		timer->Reset();
+		goback = false;
+	}
+	if(pov == 270){
+		srx1->Set(ControlMode::Position, 3000); //Just Above Ground
 		timer->Reset();
 		goback = false;
 	}
@@ -138,34 +144,15 @@ void LiftManager::Lift() {
 	frc::SmartDashboard::PutNumber("top limit",!limit2->Get());
 	frc::SmartDashboard::PutNumber("bottom limit",!limit->Get());
 		if(!limit2->Get()){
-			//srx1->GetSensorCollection().SetQuadraturePosition(36535, 10); //Set to Top - 10ms Allowed Time
+			//srx1->Set(ControlMode::Position, 34000);
+			srx1->GetSensorCollection().SetQuadraturePosition(-33000, 10); //Set to Zero - 10ms Allowed Time
+
 		}
 
 		if(!limit->Get()){
+			//srx1->Set(ControlMode::Position, 0); //Bottom
 			srx1->GetSensorCollection().SetQuadraturePosition(0, 10); //Set to Zero - 10ms Allowed Time
 		}
-
-		/*if (!limit->Get() and -xbox->GetRawAxis(5) < 0) {
-			srx1->Set(0);
-			srx2->Set(0);
-		}
-		if (!limit->Get() and -xbox->GetRawAxis(5) > 0) {*/
-			//srx1->Set(xb);		srx2->Set(ControlMode::PercentOutput, xb);
-
-			//srx2->Set(xb);
-		//}
-		/*if (!limit2->Get() and -xbox->GetRawAxis(5) > 0) {
-			srx1->Set(0);
-			srx2->Set(0);
-		}
-		if (!limit2->Get() and -xbox->GetRawAxis(5) < 0) {
-			srx1->Set(xb);
-			srx2->Set(xb);
-		}
-		if (limit->Get() and limit->Get()) {
-			srx1->Set(xb);
-			srx2->Set(xb);
-		}*/
 
 
 	double p1 = srx1->Get();
@@ -184,10 +171,11 @@ void LiftManager::Lift() {
 	//35780
 
 	//Heat Check Code
+	/*
 	if(timesec > 25 && firstrun){
 		firstrun = false;
 	}
-	if (timesec > 15 && !goback && !firstrun) {
+	if (timesec > 15 && !goback && !firstrun && !xbox->GetRawButton(5)) {
 		timer->Reset();
 		pos = -srx1->GetSensorCollection().GetQuadraturePosition();
 		if(-srx1->GetSensorCollection().GetQuadraturePosition() < 1000){
@@ -201,13 +189,14 @@ void LiftManager::Lift() {
 			goback = true;
 		}
 	}
-	if (goback && timer->Get() > 5 && !firstrun){
+	if (goback && timer->Get() > 5 && !firstrun && !xbox->GetRawButton(5)){
 		srx1->Set(ControlMode::Position, pos); // Go Back to Original
 		goback = false;
 		timer->Reset();
 	}
 	frc::SmartDashboard::PutBoolean("Goback", goback);
 	//End of Heat Check Code
+	 */
 	//Check Encoder Health
 	RisetoFall = srx1->GetSensorCollection().GetPulseWidthRiseToFallUs();
 	RisetoRise = srx1->GetSensorCollection().GetPulseWidthRiseToRiseUs();
@@ -223,6 +212,7 @@ void LiftManager::Lift() {
 	}
 	//End of Encoder Health Check
 	//775pro Health Keep
+	/*
 	LiftVoltage = srx1->GetMotorOutputVoltage();
 	frc::SmartDashboard::PutNumber("LiftMotorVoltage1", LiftVoltage);
 	LiftSpeed = srx1->GetSensorCollection().GetQuadratureVelocity();
@@ -230,7 +220,9 @@ void LiftManager::Lift() {
 		//srx1->Set(ControlMode::PercentOutput, 0.4); //Set to 2 Volts
 	}
 	//End of 775pro Health Keep
-
+	*/
+	double PIDError = srx1->GetClosedLoopError(0);
+	frc::SmartDashboard::PutNumber("PIDError", PIDError);
 
 }
 
