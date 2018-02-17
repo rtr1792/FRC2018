@@ -39,6 +39,7 @@ private:
 public:
 	DriveManager();
 	void driveTrain();
+	void Drive(int speed);
 };
 //	null ArcadeDrive(double, double, bool);
 

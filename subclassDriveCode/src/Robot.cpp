@@ -13,6 +13,8 @@
 #include <SmartDashboard/SmartDashboard.h>
 #include <Drive/DifferentialDrive.h>
 #include <DriverStation.h>
+#include <PowerDistributionPanel.h>
+#include <segments/autonomous.h>
 
 class Robot : public frc::IterativeRobot {
 
@@ -22,59 +24,39 @@ public:
 	this->climberManager = new ClimberManager();
 	this->liftManager = new LiftManager();
 	this->intakeManager = new IntakeManager();
+	this->autoManager = new AutoManager();
 	}
 private:
 	DriveManager *driveManager;
 	ClimberManager *climberManager;
 	LiftManager *liftManager;
 	IntakeManager *intakeManager;
+	AutoManager *autoManager;
 
 	frc::Joystick stick { 0 };
 //	frc::XboxController xbox { 1 };
+	double test;
+	frc::PowerDistributionPanel pdp;
 
 	void RobotInit() {
-		m_chooser.AddDefault(kAutoNameDefault, kAutoNameDefault);
-		m_chooser.AddObject(kAutoNameCustom, kAutoNameCustom);
-		frc::SmartDashboard::PutData("Auto Modes", &m_chooser);
 	}
 
 
 	void AutonomousInit() override {
-		m_autoSelected = m_chooser.GetSelected();
-		// m_autoSelected = SmartDashboard::GetString(
-		// 		"Auto Selector", kAutoNameDefault);
-		std::cout << "Auto selected: " << m_autoSelected << std::endl;
 
-		if (m_autoSelected == kAutoNameCustom) {
-			// Custom Auto goes here
-		} else {
-			// Default Auto goes here
-		}
 	}
 
 	void AutonomousPeriodic() {
-		if (m_autoSelected == kAutoNameCustom) {
-			// Custom Auto goes here
-		} else {
-			// Default Auto goes here
-		}
-
-		std::string gameData;
-		gameData = frc::DriverStation::GetInstance().GetGameSpecificMessage();
-		if(gameData[0] == 'L')
-		{
-			frc::SmartDashboard::PutNumber("side",1);
-		}
-
-		else {
-			frc::SmartDashboard::PutNumber("side",2);
-		}
-
+		this->driveManager->Drive(0);
 	}
 
 	void TeleopInit() {}
 
 	void TeleopPeriodic() {
+		test = frc::SmartDashboard::GetNumber("batterySet", 0);
+		frc::SmartDashboard::PutNumber("battery#",test);
+		frc::SmartDashboard::PutNumber("battery voltage",pdp.GetVoltage());
+
 		//creates a arcade drive on talons 1-4 using joystick axies 1-2
 		this->driveManager->driveTrain();
 

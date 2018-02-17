@@ -20,12 +20,11 @@ private:
 
 	int *rd;
 	int *ld;
-	int *zero;
-	int *one;
 	int *reverse;
 public:
 	IntakeManager();
 	void Intake();
+	void Intakemove(int speed);
 };
 
 #endif /* SRC_SUBCLASS_INTAKE_H_ */

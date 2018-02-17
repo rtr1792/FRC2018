@@ -41,14 +41,10 @@ IntakeManager::IntakeManager() {
 
 	rd = new int;
 	ld = new int;
-	zero = new int;
-	one = new int;
 	reverse = new int;
 }
 
 void IntakeManager::Intake() {
-	*zero = 0;
-	*one = 1;
 
 	frc::SmartDashboard::PutNumber("test",1);
 
@@ -68,6 +64,15 @@ void IntakeManager::Intake() {
 		srx1->Set(0);
 		srx2->Set(0);
 	}
+	else if(!xbox->GetRawButton(1) and !xbox->GetRawButton(2) and !xbox->GetRawButton(3) and xbox->GetRawButton(6) and xbox->GetRawButton(4)){
+		srx1->Set(0.5);
+		srx2->Set(0.5);
+	}
+	else if(!xbox->GetRawButton(1) and !xbox->GetRawButton(2) and !xbox->GetRawButton(3) and xbox->GetRawButton(6) and xbox->GetRawButton(4)){
+		srx1->Set(1);
+		srx2->Set(-1);
+	}
+
 /*
 	if ((*ld == *one) and (*reverse == *zero) and xbox->GetRawButton(1)) {
 		srx1->Set(0.5);
@@ -89,17 +94,20 @@ void IntakeManager::Intake() {
 	frc::SmartDashboard::PutNumber("In2",ultd2);
 
 	double k = 0.07;
+	if(!xbox->GetRawButton(6)){
+		if ((!xbox->GetRawButton(1) or !xbox->GetRawButton(2)) or !xbox->GetRawButton(3)) {
+			if ((ultd > 4.2 and ultd < 13)) {
+				srx1->Set(ultd * k);
+			}
 
-	if ((!xbox->GetRawButton(1) or !xbox->GetRawButton(2)) or !xbox->GetRawButton(3)) {
-		if ((ultd > 4.2 and ultd < 13)) {
-			srx1->Set(ultd * k);
-		}
-
-		if ((ultd2 > 4.2 and ultd2 < 13)) {
-			srx2->Set(-(ultd2 * k));
+			if ((ultd2 > 4.2 and ultd2 < 13)) {
+				srx2->Set(-(ultd2 * k));
+			}
 		}
 	}
 
+	frc::SmartDashboard::PutNumber("intakeC",srx1->GetOutputCurrent());
+	frc::SmartDashboard::PutNumber("intakeC2",srx2->GetOutputCurrent());
 
 
 /*	if (ultd > ultd2 + 2) {
@@ -116,6 +124,11 @@ void IntakeManager::Intake() {
 		*rd = 0;
 	}
 */
+}
+
+void IntakeManager::Intakemove(int speed) {
+	srx1->Set(speed);
+	srx2->Set(-speed);
 }
 
 
