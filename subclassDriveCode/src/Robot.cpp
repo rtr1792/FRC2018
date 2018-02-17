@@ -13,6 +13,7 @@
 #include <SmartDashboard/SmartDashboard.h>
 #include <Drive/DifferentialDrive.h>
 #include <DriverStation.h>
+#include <PowerDistributionPanel.h>
 
 class Robot : public frc::IterativeRobot {
 
@@ -31,6 +32,8 @@ private:
 
 	frc::Joystick stick { 0 };
 //	frc::XboxController xbox { 1 };
+	double test;
+	frc::PowerDistributionPanel pdp;
 
 	void RobotInit() {
 		m_chooser.AddDefault(kAutoNameDefault, kAutoNameDefault);
@@ -70,11 +73,17 @@ private:
 			frc::SmartDashboard::PutNumber("side",2);
 		}
 
+//		this->liftManager->Liftmove(10000);
+//		this->intakeManager->Intakemove(0.5);
 	}
 
 	void TeleopInit() {}
 
 	void TeleopPeriodic() {
+		test = frc::SmartDashboard::GetNumber("batterySet", 0);
+		frc::SmartDashboard::PutNumber("battery#",test);
+		frc::SmartDashboard::PutNumber("battery voltage",pdp.GetVoltage());
+
 		//creates a arcade drive on talons 1-4 using joystick axies 1-2
 		this->driveManager->driveTrain();
 
