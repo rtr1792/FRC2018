@@ -14,10 +14,12 @@
 #include <Drive/DifferentialDrive.h>
 #include <DriverStation.h>
 #include <PowerDistributionPanel.h>
-#include <autonomous.h>
-#include "Robot.h"
+#include <Robot.h>
 
 int autostep = 0;
+std::string gameData;
+int autonum; // What the robot is doing
+int location; // Where the robot is starting
 
 class Robot : public frc::IterativeRobot {
 
@@ -27,48 +29,161 @@ public:
 	this->climberManager = new ClimberManager();
 	this->liftManager = new LiftManager();
 	this->intakeManager = new IntakeManager();
-	this->autoManager = new AutoManager();
 	}
 private:
 	DriveManager *driveManager;
 	ClimberManager *climberManager;
 	LiftManager *liftManager;
 	IntakeManager *intakeManager;
-	AutoManager *autoManager;
 
 	frc::Joystick stick { 0 };
 //	frc::XboxController xbox { 1 };
 	//double test;
 //	frc::PowerDistributionPanel pdp;
 
+
+
+
+
 	void RobotInit() {
+
 	}
 
 
 	void AutonomousInit() override {
 		this->driveManager->ResetSensors();
+		//frc::SmartDashboard::PutNumber("auto",0);
 	}
 
 	void AutonomousPeriodic() {
-		//88 = auto line
-		//this->driveManager->Drive(0.75, autoLine);]
+		autonum = frc::SmartDashboard::GetNumber("auto", 0);
+		location = frc::SmartDashboard::GetNumber("Location", 0);
+		frc::SmartDashboard::PutNumber("autoResult",autonum);
+		frc::SmartDashboard::PutNumber("locationResult", location);
+
+		gameData = frc::DriverStation::GetInstance().GetGameSpecificMessage();
+		frc::SmartDashboard::PutString("Field Data", gameData);
+
+		//this->driveManager->Drive(0.75, autoLine);
 		frc::SmartDashboard::PutNumber("AutoStep", autostep);
-		switch(autostep){
-		case 0: this->liftManager->Liftmove(switchheight, scaleheight, 0);
-				this->intakeManager->Intakemove(0, true);
-			break;
-		case 1 : this->driveManager->Drive(0.65, autoLine);
-				this->intakeManager->Intakemove(0, true);
-			break;
-		case 2 : this->driveManager->Turn(-90);
-				this->intakeManager->Intakemove(0, true);
-			break;
-		case 3: this->driveManager->ResetSensors();
-				this->driveManager->Drive(0.3, 26);
-				this->intakeManager->Intakemove(0, true);
-			break;
-		case 4: this->intakeManager->Intakemove(-1, false);
-			break;
+		if(autonum == 4){
+			//Straight Line Drive Auto Line
+			switch(autostep){
+				case 0: this->liftManager->Liftmove(switchheight, scaleheight, 0);
+						this->intakeManager->Intakemove(0, true);
+					break;
+				case 1 : this->driveManager->Drive(0.65, autoLine);
+						this->intakeManager->Intakemove(0, true);
+					break;
+			}
+		}
+		if(location == 3 && autonum == 1){
+			if(gameData == "RRR" || gameData == "RRL" || gameData == "RLL" || gameData == "RLR"){
+				//Switch Right
+				switch(autostep){
+				case 0: this->liftManager->Liftmove(switchheight, scaleheight, 0);
+						this->intakeManager->Intakemove(0, true);
+					break;
+				case 1 : this->driveManager->Drive(0.65, autoLine);
+						this->intakeManager->Intakemove(0, true);
+					break;
+				case 2 : this->driveManager->Turn(-90); // Negative to Turn Left
+						this->intakeManager->Intakemove(0, true);
+					break;
+				case 3: this->driveManager->ResetSensors();
+						this->driveManager->Drive(0.3, 26);
+						this->intakeManager->Intakemove(0, true);
+					break;
+				case 4: this->intakeManager->Intakemove(-1, false);
+					break;
+				}
+			}
+			else{
+				//Straight Line Drive Auto Line
+				switch(autostep){
+					case 0: this->liftManager->Liftmove(switchheight, scaleheight, 0);
+							this->intakeManager->Intakemove(0, true);
+						break;
+					case 1 : this->driveManager->Drive(0.65, autoLine);
+							this->intakeManager->Intakemove(0, true);
+						break;
+				}
+			}
+		}
+		if(location == 1 && autonum == 1){
+			if(gameData == "LRR" || gameData == "LRL" || gameData == "LLL" || gameData == "LLR"){
+				//Switch Left
+				switch(autostep){
+				case 0: this->liftManager->Liftmove(switchheight, scaleheight, 0);
+						this->intakeManager->Intakemove(0, true);
+					break;
+				case 1 : this->driveManager->Drive(0.65, autoLine);
+						this->intakeManager->Intakemove(0, true);
+					break;
+				case 2 : this->driveManager->Turn(90); // Postive to Turn Right
+						this->intakeManager->Intakemove(0, true);
+					break;
+				case 3: this->driveManager->ResetSensors();
+						this->driveManager->Drive(0.3, 26);
+						this->intakeManager->Intakemove(0, true);
+					break;
+				case 4: this->intakeManager->Intakemove(-1, false);
+					break;
+				}
+			}
+			else{
+				//Straight Line Drive Auto Line
+				switch(autostep){
+					case 0: this->liftManager->Liftmove(switchheight, scaleheight, 0);
+							this->intakeManager->Intakemove(0, true);
+						break;
+					case 1 : this->driveManager->Drive(0.65, autoLine);
+							this->intakeManager->Intakemove(0, true);
+						break;
+				}
+			}
+		}
+		if(location == 2 && autonum == 1){
+			if(gameData == "LRR" || gameData == "LRL" || gameData == "LLL" || gameData == "LLR"){
+				//Switch Center
+				switch(autostep){
+				case 0: this->liftManager->Liftmove(switchheight, scaleheight, 0);
+						this->intakeManager->Intakemove(0, true);
+					break;
+				case 1 : this->driveManager->Drive(0.65, autoLine);
+						this->intakeManager->Intakemove(0, true);
+					break;
+				case 2 : this->driveManager->Turn(45); // Postive to Turn Right
+						this->intakeManager->Intakemove(0, true);
+					break;
+				case 3: this->driveManager->ResetSensors();
+						this->driveManager->Drive(0.3, 26);
+						this->intakeManager->Intakemove(0, true);
+					break;
+				case 4: this->intakeManager->Intakemove(-1, false);
+					break;
+				}
+			}
+			else{
+				//Switch Center
+				switch(autostep){
+				case 0: this->liftManager->Liftmove(switchheight, scaleheight, 0);
+						this->intakeManager->Intakemove(0, true);
+					break;
+				case 1 : this->driveManager->Drive(0.65, autoLine);
+						this->intakeManager->Intakemove(0, true);
+					break;
+				case 2 : this->driveManager->Turn(-45); // Postive to Turn Right
+						this->intakeManager->Intakemove(0, true);
+					break;
+				case 3: this->driveManager->ResetSensors();
+						this->driveManager->Drive(0.3, 26);
+						this->intakeManager->Intakemove(0, true);
+					break;
+				case 4: this->intakeManager->Intakemove(-1, false);
+					break;
+				}
+			}
 		}
 	}
 
