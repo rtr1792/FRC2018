@@ -102,6 +102,8 @@ void LiftManager::Lift(int scaleheight, int switchheight, int driveheight) {
 	pov = xbox->GetPOV();
 	timesec = timer->Get();
 	frc::SmartDashboard::PutNumber("Timer", timesec);
+
+	//deadband
 	if (-xbox->GetRawAxis(5) < 0.05 and -xbox->GetRawAxis(5) > -0.05) {
 		xb = 0;
 	}
@@ -109,10 +111,11 @@ void LiftManager::Lift(int scaleheight, int switchheight, int driveheight) {
 		xb = -xbox->GetRawAxis(5);
 	}
 
-
+//human control
 	if(xbox->GetRawButton(5) and ((limit->Get() and limit2->Get()) or ((!limit->Get() and xb > 0) or (!limit2->Get() and xb < 0)))){
 		srx1->Set(ControlMode::PercentOutput, xb);
 	}
+	//pid control
 	if(pov == 0) {
 		srx1->Set(ControlMode::Position, scaleheight); //Scale Height -2 Just Incase
 		timer->Reset();
@@ -135,7 +138,7 @@ void LiftManager::Lift(int scaleheight, int switchheight, int driveheight) {
 	}
 	*encoder = -srx1->GetSensorCollection().GetQuadraturePosition();
 	frc::SmartDashboard::PutNumber("liftEnc",*encoder);
-
+//reset encoder
 	if (xbox->GetRawButton(9)) {
 		srx1->GetSensorCollection().SetQuadraturePosition(0,4);
 	}
@@ -144,6 +147,7 @@ void LiftManager::Lift(int scaleheight, int switchheight, int driveheight) {
 
 	frc::SmartDashboard::PutNumber("top limit",!limit2->Get());
 	frc::SmartDashboard::PutNumber("bottom limit",!limit->Get());
+	//limit stops
 		if(!limit2->Get()){
 			//srx1->Set(ControlMode::Position, 34000);
 			srx1->GetSensorCollection().SetQuadraturePosition(-scaleheight, 10); //Set to Zero - 10ms Allowed Time
@@ -202,6 +206,7 @@ void LiftManager::Lift(int scaleheight, int switchheight, int driveheight) {
 	frc::SmartDashboard::PutBoolean("Goback", goback);
 	//End of Heat Check Code
 	 */
+
 	//Check Encoder Health
 	RisetoFall = srx1->GetSensorCollection().GetPulseWidthRiseToFallUs();
 	RisetoRise = srx1->GetSensorCollection().GetPulseWidthRiseToRiseUs();
@@ -230,7 +235,7 @@ void LiftManager::Lift(int scaleheight, int switchheight, int driveheight) {
 	frc::SmartDashboard::PutNumber("PIDError", PIDError);
 
 }
-
+//allows the auto to control the lift
 void LiftManager::Liftmove(int pos, int toplimit, int bottomlimit) {
 	srx1->Set(ControlMode::Position, pos);
 	if(!limit2->Get()){
@@ -244,5 +249,4 @@ void LiftManager::Liftmove(int pos, int toplimit, int bottomlimit) {
 
 void StartTimer(){
 }
-
 

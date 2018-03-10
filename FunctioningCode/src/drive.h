@@ -44,6 +44,7 @@ public:
 	void ResetSensors();
 	void setCoast();
 	void FindStartEnc();
+	void DriveNew(double speed, double goDistance);
 };
 //	null ArcadeDrive(double, double, bool);
 
