@@ -110,7 +110,7 @@ void IntakeManager::Intakemove(double speed, bool ultraenable) {
 	frc::SmartDashboard::PutNumber("In",ultd);
 	double ultd2 = ult2->GetRangeInches();
 	frc::SmartDashboard::PutNumber("In2",ultd2);
-	if(ultraenable){
+	if(ultraenable){  // Ultrasonic tells the intake to always run per Ultraenable
 		if ((ultd > ultramin and ultd < ultramax)) {
 			srx1->Set(ultd * k);
 		}
