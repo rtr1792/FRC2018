@@ -112,9 +112,10 @@ void LiftManager::Lift(int scaleheight, int switchheight, int driveheight) {
 		xb = -xbox->GetRawAxis(5);
 	}
 
-//human control
+	//human control
 	if(xbox->GetRawButton(5) and ((limit->Get() and limit2->Get()) or ((!limit->Get() and xb > 0) or (!limit2->Get() and xb < 0)))){
 		srx1->Set(ControlMode::PercentOutput, xb);
+		liftlocation = -1;
 	}
 	//pid control
 	if(pov == 0) {
@@ -148,6 +149,21 @@ void LiftManager::Lift(int scaleheight, int switchheight, int driveheight) {
 		srx1->GetSensorCollection().SetQuadraturePosition(0,4);
 	}
 
+
+	//Auto Lift
+	if(!xbox->GetRawButton(5) && !xbox->GetRawButton(6)){
+		if(liftlocation == 180){
+			if(xbox->GetRawButton(1) || xbox->GetRawButton(2) || xbox->GetRawButton(3)){
+				srx1->Set(ControlMode::Position, 0);
+			}
+			else{
+				srx1->Set(ControlMode::Position, 4096);
+			}
+		}
+		else{
+			//Do Nothing
+		}
+	}
 
 
 	frc::SmartDashboard::PutNumber("top limit",!limit2->Get());
@@ -219,7 +235,7 @@ void LiftManager::Lift(int scaleheight, int switchheight, int driveheight) {
 	frc::SmartDashboard::PutNumber("RisetoRise", RisetoRise);
 	if(RisetoFall == 0 || RisetoRise == 0){
 		srx1->Set(ControlMode::PercentOutput, xb);
-		xbox->SetRumble(frc::GenericHID::kRightRumble, 100);
+		xbox->SetRumble(frc::GenericHID::kRightRumble, 1);
 		//xbox->SetRumble(frc::GenericHID::kLeftRumble, 100);
 	}
 	else{
@@ -238,21 +254,6 @@ void LiftManager::Lift(int scaleheight, int switchheight, int driveheight) {
 	*/
 	double PIDError = srx1->GetClosedLoopError(0);
 	frc::SmartDashboard::PutNumber("PIDError", PIDError);
-
-
-	if(fabs(DriveSRX1->GetSensorCollection().GetQuadratureVelocity()) > 0 || fabs(DriveSRX2->GetSensorCollection().GetQuadratureVelocity()) > 0){
-		if(liftlocation == 180){
-			if(xbox->GetRawButton(1) || xbox->GetRawButton(2) || xbox->GetRawButton(3)){
-				//Do nothing because we dont want to.
-			}
-			else{
-				srx1->Set(ControlMode::Position, 1000);
-			}
-		}
-		else{
-			//Do Nothing
-		}
-	}
 
 }
 //allows the auto to control the lift

@@ -186,7 +186,7 @@ void DriveManager::driveTrain() {
 		x = stick->GetRawAxis(1);
 	}
 	else{
-		x = stick->GetRawAxis(1) * 0.85;
+		x = stick->GetRawAxis(1) * 0.80;
 	}
 
 	if (stick->GetRawAxis(2) < 0.05 and stick->GetRawAxis(2) > -0.05) {
@@ -196,6 +196,11 @@ void DriveManager::driveTrain() {
 		z = stick->GetRawAxis(2)*0.75;
 	}
 	else{
+		z = stick->GetRawAxis(2) * 0.75;
+	}
+	//Turn Only
+	if(stick->GetRawButton(3)){
+		x = 0;
 		z = stick->GetRawAxis(2) * 0.75;
 	}
 
@@ -388,7 +393,7 @@ void DriveManager::Drive(double speed, double goDistance) {
 
 void DriveManager::Turn(int angle){
 	double z;
-	double turnk = -0.015; //Bigger Numbers ARE FASTER
+	double turnk = -0.0165; //Bigger Numbers ARE FASTER
 	double want = angle;
 	//double allowederror = 5;
 	gyro = ahrs->GetAngle();

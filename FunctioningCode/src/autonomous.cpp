@@ -151,9 +151,9 @@ void AutoManager::ScaleRight(){
 		case 7: this->driveManager->ResetSensors();
 				this->driveManager->FindStartEnc();
 			break;
-		case 8: this->driveManager->Turn(-50);
+		case 8: this->driveManager->Turn(-60);
 			break;
-		case 9: this->liftManager->Liftmove(0, scaleheight, 0);
+		case 9: this->liftManager->Liftmove(4096, scaleheight, 0);
 			break;
 	}
 }
@@ -198,9 +198,9 @@ void AutoManager::ScaleLeft(){ // starts at 1 and scores on left side of scale
 		case 7: this->driveManager->ResetSensors();
 				this->driveManager->FindStartEnc();
 			break;
-		case 8: this->driveManager->Turn(50);
+		case 8: this->driveManager->Turn(60);
 			break;
-		case 9: this->liftManager->Liftmove(0, scaleheight, 0);
+		case 9: this->liftManager->Liftmove(4096, scaleheight, 0);
 			break;
 	}
 }
