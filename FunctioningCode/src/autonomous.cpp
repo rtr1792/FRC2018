@@ -173,5 +173,34 @@ void AutoManager::StraightLine() {
 	}
 }
 
-
-
+void AutoManager::ScaleLeft(){ // starts at 1 and scores on left side of scale
+	switch(autostep){
+		case 0: this->liftManager->Liftmove(switchheight, scaleheight, 0);
+				this->intakeManager->Intakemove(0, true);
+			break;
+		case 1: this->driveManager->Drive(FirstDriveSpeed, 233);
+				this->intakeManager->Intakemove(0, true);
+			break;
+		case 2: this->driveManager->Turn(45);
+				this->intakeManager->Intakemove(0, true);
+			break;
+		case 3: this->liftManager->Liftmove(scaleheight, scaleheight, 0);
+				this->intakeManager->Intakemove(0, true);
+			break;
+		case 4: this->driveManager->ResetSensors();
+				this->driveManager->FindStartEnc();
+			break;
+		case 5: this->driveManager->Drive(0.40, 16);
+				this->intakeManager->Intakemove(0, true);
+			break;
+		case 6: this->intakeManager->Intakemove(-1, false);
+			break;
+		case 7: this->driveManager->ResetSensors();
+				this->driveManager->FindStartEnc();
+			break;
+		case 8: this->driveManager->Turn(50);
+			break;
+		case 9: this->liftManager->Liftmove(0, scaleheight, 0);
+			break;
+	}
+}

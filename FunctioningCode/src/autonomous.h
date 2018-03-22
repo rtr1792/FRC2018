@@ -33,6 +33,7 @@ public:
 	void CenterLeft(); //Diddo as above
 	void StraightLine(); //Just Drive
 	void ScaleRight();
+	void ScaleLeft();
 };
 
 
