@@ -96,12 +96,15 @@ double bottomlimit = 0;
 int pov;
 int timesec = 0;
 bool firstrun = true;
+int liftlocation = 180;
 //12,3
 //limit depressed = 0
 void LiftManager::Lift(int scaleheight, int switchheight, int driveheight) {
 	pov = xbox->GetPOV();
 	timesec = timer->Get();
 	frc::SmartDashboard::PutNumber("Timer", timesec);
+
+	//deadband
 	if (-xbox->GetRawAxis(5) < 0.05 and -xbox->GetRawAxis(5) > -0.05) {
 		xb = 0;
 	}
@@ -109,33 +112,38 @@ void LiftManager::Lift(int scaleheight, int switchheight, int driveheight) {
 		xb = -xbox->GetRawAxis(5);
 	}
 
-
+//human control
 	if(xbox->GetRawButton(5) and ((limit->Get() and limit2->Get()) or ((!limit->Get() and xb > 0) or (!limit2->Get() and xb < 0)))){
 		srx1->Set(ControlMode::PercentOutput, xb);
 	}
+	//pid control
 	if(pov == 0) {
 		srx1->Set(ControlMode::Position, scaleheight); //Scale Height -2 Just Incase
 		timer->Reset();
 		goback = false;
+		liftlocation = 0;
 	}
 	if (pov == 90) {
 		srx1->Set(ControlMode::Position, switchheight); //Switch Height
 		timer->Reset();
 		goback = false;
+		liftlocation = 90;
 	}
 	if(pov == 270){
 		srx1->Set(ControlMode::Position, driveheight); //Just Above Ground
 		timer->Reset();
 		goback = false;
+		liftlocation = 270;
 	}
 	if (pov == 180) {
 		srx1->Set(ControlMode::Position, 0); //Bottom
 		timer->Reset();
 		goback = false;
+		liftlocation = 180;
 	}
 	*encoder = -srx1->GetSensorCollection().GetQuadraturePosition();
 	frc::SmartDashboard::PutNumber("liftEnc",*encoder);
-
+//reset encoder
 	if (xbox->GetRawButton(9)) {
 		srx1->GetSensorCollection().SetQuadraturePosition(0,4);
 	}
@@ -144,6 +152,7 @@ void LiftManager::Lift(int scaleheight, int switchheight, int driveheight) {
 
 	frc::SmartDashboard::PutNumber("top limit",!limit2->Get());
 	frc::SmartDashboard::PutNumber("bottom limit",!limit->Get());
+	//limit stops
 		if(!limit2->Get()){
 			//srx1->Set(ControlMode::Position, 34000);
 			srx1->GetSensorCollection().SetQuadraturePosition(-scaleheight, 10); //Set to Zero - 10ms Allowed Time
@@ -202,6 +211,7 @@ void LiftManager::Lift(int scaleheight, int switchheight, int driveheight) {
 	frc::SmartDashboard::PutBoolean("Goback", goback);
 	//End of Heat Check Code
 	 */
+
 	//Check Encoder Health
 	RisetoFall = srx1->GetSensorCollection().GetPulseWidthRiseToFallUs();
 	RisetoRise = srx1->GetSensorCollection().GetPulseWidthRiseToRiseUs();
@@ -229,20 +239,44 @@ void LiftManager::Lift(int scaleheight, int switchheight, int driveheight) {
 	double PIDError = srx1->GetClosedLoopError(0);
 	frc::SmartDashboard::PutNumber("PIDError", PIDError);
 
-}
 
+	if(fabs(DriveSRX1->GetSensorCollection().GetQuadratureVelocity()) > 0 || fabs(DriveSRX2->GetSensorCollection().GetQuadratureVelocity()) > 0){
+		if(liftlocation == 180){
+			if(xbox->GetRawButton(1) || xbox->GetRawButton(2) || xbox->GetRawButton(3)){
+				//Do nothing because we dont want to.
+			}
+			else{
+				srx1->Set(ControlMode::Position, 1000);
+			}
+		}
+		else{
+			//Do Nothing
+		}
+	}
+
+}
+//allows the auto to control the lift
 void LiftManager::Liftmove(int pos, int toplimit, int bottomlimit) {
+	if(pos == switchheight){
+		liftlocation = 90;
+	}
+	if(pos == scaleheight){
+		liftlocation = 0;
+	}
+	if(pos == driveheight){
+		liftlocation = 270;
+	}
 	srx1->Set(ControlMode::Position, pos);
 	if(!limit2->Get()){
-		srx1->GetSensorCollection().SetQuadraturePosition(-toplimit, 10); //Set to Zero - 10ms Allowed Time
+		srx1->GetSensorCollection().SetQuadraturePosition(-toplimit, 10); //Set to Top - 10ms Allowed Time
 	}
 	if(!limit->Get()){
 		srx1->GetSensorCollection().SetQuadraturePosition(bottomlimit, 10); //Set to Zero - 10ms Allowed Time
 	}
 	autostep++;
+
 }
 
 void StartTimer(){
 }
-
 
