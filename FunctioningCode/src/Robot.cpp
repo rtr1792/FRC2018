@@ -20,8 +20,9 @@
 
 
 int autostep = 0;
+int skipCount = 0;
 std::string gameData;
-int autonum; // What the robot is doing
+int autonum; // What auto we are running
 int location; // Where the robot is starting
 double autodelay = 0;
 double timersec = 0;
@@ -47,6 +48,7 @@ private:
 	Timer *timer;
 
 	frc::Joystick stick { 0 };
+
 //	frc::XboxController xbox { 1 };
 	//double test;
 //	frc::PowerDistributionPanel pdp;
@@ -55,7 +57,7 @@ private:
 
 
 
-	void RobotInit() {
+	void RobotInit() {  //init the robot
 	}
 
 
@@ -65,11 +67,10 @@ private:
 		this->driveManager->setCoast();
 		//this->liftManager->Lift(scaleheight, switchheight, driveheight); //Setup Talon PID Loop Just incase and to Ensure everything is new
 		autostep = 0;
+		skipCount = 0;
 		//frc::SmartDashboard::PutNumber("AutoDelay", 0);
 		//frc::SmartDashboard::PutNumber("AutoNumber", 0);
 		//frc::SmartDashboard::PutNumber("AutoLocation", 0);
-
-
 	}
 
 	void AutonomousPeriodic() {
@@ -81,6 +82,8 @@ private:
 
 		gameData = frc::DriverStation::GetInstance().GetGameSpecificMessage();
 		frc::SmartDashboard::PutString("Field Data", gameData);
+
+		frc::SmartDashboard::PutNumber("autoSkipCount", skipCount);
 
 		//this->driveManager->Drive(0.75, ToSwitch);
 		frc::SmartDashboard::PutNumber("AutoStep", autostep);
@@ -177,6 +180,26 @@ private:
 				else if (gameData[0] == 'L' && gameData[1] == 'L') {
 					this->autoManager->StraightLine();
 				}
+			}
+			if (location == 3 and autonum == 6) { // starts on right and scores on our side of the scale
+				if (gameData[1] == 'R') {
+					this->autoManager->ScaleRight();
+				}
+				else {
+					this->autoManager->crossScoreLeft();
+				}
+			}
+			if (location == 1 and autonum == 6) { // starts on left and scores on our side of the scale
+				if (gameData[1] == 'L') {
+					this->autoManager->ScaleLeft();
+				}
+				else {
+					this->autoManager->crossScoreRight();
+				}
+			}
+			if (autonum == 10) {
+				this->autoManager->turnTest();
+				//this->autoManager->CenterLeftKick();
 			}
 		}
 	}

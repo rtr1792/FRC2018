@@ -25,6 +25,7 @@
 #include "AHRS.h"
 #include <SPI.h>
 #include <Robot.h>
+#include "Timer.h"
 //n the declaration
 bool VelocityControl = false;
 double left = 0;
@@ -33,6 +34,9 @@ int kTimeoutMs = 10;
 bool CurrentControl = false;
 
 DriveManager::DriveManager() {
+	turnTimer = new Timer();
+	delayTimer= new Timer();
+
 	srx1 = new WPI_TalonSRX(1);
 	srx12 = new WPI_TalonSRX(2);
 	srx13 = new WPI_TalonSRX(3);
@@ -145,7 +149,9 @@ DriveManager::DriveManager() {
 	srx1->GetSensorCollection().SetQuadraturePosition(0,10);
 	srx2->GetSensorCollection().SetQuadraturePosition(0,10);
 }
-
+int delayLoop = 0;
+int loopCount = 0;
+double boost = 0;
 
 double want = 0;
 double gyro = 0;
@@ -178,7 +184,7 @@ double LeftEncLast = 0.0;
 double RightEncLast = 0.0;
 
 void DriveManager::driveTrain() {
-
+//deadband
 	if (stick->GetRawAxis(1) < 0.05 and stick->GetRawAxis(1) > -0.05) {
 		x = 0;
 	}
@@ -186,7 +192,7 @@ void DriveManager::driveTrain() {
 		x = stick->GetRawAxis(1);
 	}
 	else{
-		x = stick->GetRawAxis(1) * 0.80;
+		x = stick->GetRawAxis(1) * 0.85;
 	}
 
 	if (stick->GetRawAxis(2) < 0.05 and stick->GetRawAxis(2) > -0.05) {
@@ -198,13 +204,9 @@ void DriveManager::driveTrain() {
 	else{
 		z = stick->GetRawAxis(2) * 0.75;
 	}
-	//Turn Only
-	if(stick->GetRawButton(3)){
-		x = 0;
-		z = stick->GetRawAxis(2) * 0.75;
-	}
 
 
+	//creep and turnlock
 			if (stick->GetRawButton(1) and !stick->GetRawButton(2)) {
 				x = stick->GetRawAxis(1) * 0.5;
 				z = stick->GetRawAxis(2) * 0.65;
@@ -219,6 +221,7 @@ void DriveManager::driveTrain() {
 			}
 
 
+			//gets encoder values
 	*vel1 = srx1->GetSensorCollection().GetQuadratureVelocity();
 	*vel2 = -srx2->GetSensorCollection().GetQuadratureVelocity();
 	*dis = srx1->GetSensorCollection().GetQuadraturePosition();
@@ -229,6 +232,7 @@ void DriveManager::driveTrain() {
 	frc::SmartDashboard::PutNumber("LeftDist",*dis);
 	frc::SmartDashboard::PutNumber("RightDist",*dis2);
 
+	//resets encoders
 	if (stick->GetRawButton(5)) {
 		srx1->GetSensorCollection().SetQuadraturePosition(0,4);
 		srx2->GetSensorCollection().SetQuadraturePosition(0,4);
@@ -237,6 +241,7 @@ void DriveManager::driveTrain() {
 	//diameter = 3.94 in
 	//circumfrece = 24.7432
 
+	//converts encoder value to inches
 	encRot = (1.0 * srx1->GetSensorCollection().GetQuadraturePosition() / 4096);
 	frc::SmartDashboard::PutNumber("encRotations",encRot);
 	LeftDist = (encRot * 12.566);
@@ -275,6 +280,7 @@ void DriveManager::driveTrain() {
 	frc::SmartDashboard::PutNumber("c5",c5);
 	frc::SmartDashboard::PutNumber("c6",c6);
 
+	//gyro values
 	//clockwise is positive
 	double Yaw = ahrs->GetYaw();
 	double Pitch = ahrs->GetPitch();
@@ -286,11 +292,13 @@ void DriveManager::driveTrain() {
 	frc::SmartDashboard::PutNumber("Roll", Roll);
 	frc::SmartDashboard::PutNumber("Angle", gyro);
 
+	//resets gyro
 	if (stick->GetRawButton(6)) {
 		ahrs->Reset();
 		want = gyro;
 	}
 
+	//strait drive
 	if (stick->GetRawButton(2)) {
 		if (z == 0) {
 			z = ((gyro - want) * turnk);
@@ -346,6 +354,7 @@ void DriveManager::driveTrain() {
 
 
 }
+//drive for auto
 void DriveManager::Drive(double speed, double goDistance) {
 	double z;
 	double turnk = -0.10; //-0.17
@@ -390,10 +399,10 @@ void DriveManager::Drive(double speed, double goDistance) {
 
 
 //End NEW CODE for Brake / Coast
-
+//allows the auto to turn
 void DriveManager::Turn(int angle){
 	double z;
-	double turnk = -0.0165; //Bigger Numbers ARE FASTER
+	double turnk = -0.015; //Bigger Numbers ARE FASTER
 	double want = angle;
 	//double allowederror = 5;
 	gyro = ahrs->GetAngle();
@@ -435,4 +444,124 @@ void DriveManager::FindStartEnc(){
 	autostep++; //Cannot be run Co-currently has to be run in its own step
 }
 
+//new auto drive should allow for backward drive. Enter -speed and -goDistance for backward movement
+void DriveManager::DriveNew(double speed, double goDistance) {
+	double z;
+	double turnk = -0.10; //-0.17
+	double want = 0;
+	gyro = ahrs->GetAngle();
+
+	encRot = (1.0 * -srx1->GetSensorCollection().GetQuadraturePosition() / 4096);
+	frc::SmartDashboard::PutNumber("encRotations",encRot);
+	LeftDist = (encRot * 12.566)-LeftEncLast; //Subrtacting LeftEncLast inorder to get Displacement to account for already driven
+	frc::SmartDashboard::PutNumber("distanceInches",LeftDist);
+
+	encRot2 = (1.0 * srx2->GetSensorCollection().GetQuadraturePosition() / 4096);
+	frc::SmartDashboard::PutNumber("encRotations2",encRot2);
+	RightDist = (encRot2 * 12.566) - RightEncLast; //Subtracting RightEncLast inorder to get Displacement to account for already driven
+	frc::SmartDashboard::PutNumber("distanceInches2",RightDist);
+
+if (goDistance > 0 or goDistance == 0) {
+	z = ((gyro - want) * turnk);
+	if ((LeftDist+RightDist)/2 < goDistance) { //This now measures the average displacement vs the target displacement
+		m_robotDrive->ArcadeDrive(speed, z);
+		frc::SmartDashboard::PutNumber("motorSpeed",speed);
+		frc::SmartDashboard::PutNumber("AutoDistance",goDistance);
+	}
+	else{
+		autostep++;
+	}
+}
+else { //the backward drive code
+	z = ((gyro - want) * turnk);
+	if ((LeftDist+RightDist)/2 > goDistance) { //This now measures the average displacement vs the target displacement
+		m_robotDrive->ArcadeDrive(speed, z);
+		frc::SmartDashboard::PutNumber("motorSpeed",speed);
+		frc::SmartDashboard::PutNumber("AutoDistance",goDistance);
+	}
+	else{
+		autostep++;
+	}
+}
+
+
+	m1 = srx1->Get();
+	m2 = srx12->Get();
+	m3 = srx13->Get();
+	m4 = srx2->Get();
+	m5 = srx21->Get();
+	m6 = srx22->Get();
+
+	frc::SmartDashboard::PutNumber("m1",m1);
+	frc::SmartDashboard::PutNumber("m2",m2);
+	frc::SmartDashboard::PutNumber("m3",m3);
+	frc::SmartDashboard::PutNumber("m4",m4);
+	frc::SmartDashboard::PutNumber("m5",m5);
+	frc::SmartDashboard::PutNumber("m6",m6);
+}
+
+void DriveManager::TurnWatch(int angle, double waitTime){
+	double z;
+	double turnk = -0.015; //Bigger Numbers ARE FASTER (away from zero)
+	double want = angle;
+	double time;
+	//double allowederror = 5;
+	if (loopCount == 0) {
+	turnTimer->Start();
+	}
+	if (loopCount > 0) {
+	time = turnTimer->Get();
+	}
+
+	if (time >= waitTime) {
+		boost = boost - 0.0005; //controls how fast the boost ramps up (bigger is faster)
+	}
+	else {
+		boost = 0;
+	}
+
+	gyro = ahrs->GetAngle();
+	z = ((gyro - want) * (turnk + boost));
+	loopCount++;
+	if(fabs(gyro-angle)< 4){  //hardcode 5 as tolerance
+		turnTimer->Stop();
+		turnTimer->Reset();
+		loopCount = 0;
+		boost = 0;
+		autostep++;
+	}
+
+	m_robotDrive->ArcadeDrive(0, z);
+	frc::SmartDashboard::PutNumber("Gyro", gyro);
+	frc::SmartDashboard::PutNumber("Want", want);
+	frc::SmartDashboard::PutNumber("autoTurnLoopCount", loopCount);
+	frc::SmartDashboard::PutNumber("autoTurnBoost", boost);
+	frc::SmartDashboard::PutNumber("autoTurnTimer", time);
+	frc::SmartDashboard::PutNumber("autoTurnWaitTime", waitTime);
+}
+
+void DriveManager::autoDelay(int delay, bool skipOrWait) {
+	double delayTime;
+	if (delayLoop == 0) {
+	delayTimer->Start();
+	}
+	if (delayLoop > 0){
+	delayTime = delayTimer->Get();
+	}
+
+	delayLoop++;
+	if (delay >= delayTime) {
+
+	}
+	else {
+		delayTimer->Stop();
+		delayTimer->Reset();
+		delayLoop = 0;
+		autostep++;
+		if (skipOrWait) {
+			skipCount++;
+		}
+	}
+
+}
 

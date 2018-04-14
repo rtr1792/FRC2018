@@ -55,11 +55,11 @@ void IntakeManager::Intake() {
 		srx1->Set(-0.5);
 		srx2->Set(0.5);
 	}
-	else if (xbox->GetRawButton(3)) {  //outake fast
+	else if (xbox->GetRawButton(3)) { //outake fast
 		srx1->Set(-1);
 		srx2->Set(1);
 	}
-	else if (xbox->GetRawButton(1)) {  //intake
+	else if (xbox->GetRawButton(1)) { //intake
 		srx1->Set(0.75);
 		srx2->Set(-0.75);
 	}
@@ -77,11 +77,14 @@ void IntakeManager::Intake() {
 		srx1->Set(0.3);
 		srx2->Set(0.5);
 	} */
+
+	//gets values for ultrasonics
 	double ultd = ult->GetRangeInches();
 	frc::SmartDashboard::PutNumber("In",ultd);
 	double ultd2 = ult2->GetRangeInches();
 	frc::SmartDashboard::PutNumber("In2",ultd2);
 
+	//ultrasonic p loop to keep the box in
 	double k = 0.07;
 	if(!xbox->GetRawButton(6)){
 		if ((!xbox->GetRawButton(1) and !xbox->GetRawButton(2)) and !xbox->GetRawButton(3)) {
@@ -107,7 +110,7 @@ void IntakeManager::Intakemove(double speed, bool ultraenable) {
 	frc::SmartDashboard::PutNumber("In",ultd);
 	double ultd2 = ult2->GetRangeInches();
 	frc::SmartDashboard::PutNumber("In2",ultd2);
-	if(ultraenable){
+	if(ultraenable){  // Ultrasonic tells the intake to always run per Ultraenable
 		if ((ultd > ultramin and ultd < ultramax)) {
 			srx1->Set(ultd * k);
 		}

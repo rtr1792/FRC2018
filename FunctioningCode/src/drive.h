@@ -25,6 +25,9 @@ private:
 		Joystick *stick;
 		XboxController *xbox;
 
+		Timer *turnTimer;
+		Timer *delayTimer;
+
 		double *rightStickValue;
 		double *leftStickValue;
 		double *vel1;
@@ -44,6 +47,9 @@ public:
 	void ResetSensors();
 	void setCoast();
 	void FindStartEnc();
+	void DriveNew(double speed, double goDistance);
+	void TurnWatch(int angle, double waitTime); //enhanced turn to increase power after a certain amount of time
+	void autoDelay(int delay, bool skipOrWait);
 };
 //	null ArcadeDrive(double, double, bool);
 
