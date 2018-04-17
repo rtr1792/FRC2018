@@ -270,9 +270,9 @@ void LiftManager::Liftmove(int pos, int toplimit, int bottomlimit) {
 	if(!limit2->Get()){
 		srx1->GetSensorCollection().SetQuadraturePosition(-toplimit, 10); //Set to Top - 10ms Allowed Time
 	}
-	if(!limit->Get()){
-		srx1->GetSensorCollection().SetQuadraturePosition(bottomlimit, 10); //Set to Zero - 10ms Allowed Time
-	}
+//	if(!limit->Get()){
+//		srx1->GetSensorCollection().SetQuadraturePosition(bottomlimit, 10); //Set to Zero - 10ms Allowed Time
+//	}
 	autostep++;
 
 }

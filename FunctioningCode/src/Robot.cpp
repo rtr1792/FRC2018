@@ -199,7 +199,9 @@ private:
 			}
 			if (autonum == 10) {
 				this->autoManager->turnTest();
-				//this->autoManager->CenterLeftKick();
+			}
+			if (autonum == 11){
+				this->autoManager->CenterLeftKick();
 			}
 		}
 	}

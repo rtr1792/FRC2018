@@ -34,7 +34,7 @@ const int scaleheight = 36400;
 const double ultramax = 13;
 const double ultramin = 4.2;
 
-extern int skipCount;
+extern int skipCount; //amount of times a step in the auto was skipped
 
 extern int autostep;
 extern double LeftEncLast;

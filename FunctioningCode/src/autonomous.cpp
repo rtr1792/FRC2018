@@ -272,18 +272,23 @@ void AutoManager::crossScoreRight() { //starting at 1 scoring on the right side 
 	}
 }
 
-void AutoManager::turnTest() {
-	switch(autostep) {
+void AutoManager::turnTest() {  //a way to test the new turn function REMOVE LATER
+	/*switch(autostep) {
 	case 0: this->driveManager->TurnWatch(90, 5);
 		break;
 	case 1: this->driveManager->autoDelay(5, false);
 		break;
 	case 2: this->driveManager->TurnWatch(0, 5);
 		break;
+	} */
+
+	switch(autostep) {
+	case 0: this->driveManager->DriveNew(0.5, 10);
+		break;
 	}
 }
 
-void AutoManager::CenterLeftKick() {
+void AutoManager::CenterLeftKick() {  //center swith auto with a kicker to prevent the robot from getting stuck
 	switch(autostep){
 		case 0: this->liftManager->Liftmove(switchheight, scaleheight, 0);
 				this->intakeManager->Intakemove(0, true);
@@ -320,5 +325,213 @@ void AutoManager::CenterLeftKick() {
 	}
 }
 
+void AutoManager::CenterRightKick() {  //center swith auto with a kicker to prevent the robot from getting stuck
+	//Switch Center
+	switch(autostep){
+		case 0: this->liftManager->Liftmove(switchheight, scaleheight, 0);
+				this->intakeManager->Intakemove(0, true);
+				this->driveManager->autoDelay(2, true);
+			break;
+		case 1 : this->driveManager->Drive(0.75, SwitchCenterStraight); // negative to Turn left
+				this->intakeManager->Intakemove(0, true);
+				this->driveManager->autoDelay(7, true);
+			break;
+		case 2: this->intakeManager->Intakemove(-1, false);
+			break;
+	}
+}
 
+void AutoManager::centerRightMultiBoxSwitch() {
+	switch(autostep){
+		case 0: this->liftManager->Liftmove(switchheight, scaleheight, 0);
+				this->intakeManager->IntakemoveImproved(0, true);
+				this->driveManager->autoDelay(2, true);
+			break;
+		case 1 : this->driveManager->Drive(0.75, SwitchCenterStraight); // negative to Turn left
+				this->intakeManager->IntakemoveImproved(0, true);
+				this->driveManager->autoDelay(7, true);
+			break;
+		case 2: this->intakeManager->IntakemoveImproved(-1, false); //no cube
+				this->driveManager->autoDelay(2, true);
+			break;
+		case 3: this->driveManager->DriveNew(0.75, -25);
+				this->driveManager->autoDelay(5, true);
+			break;
+		case 4: this->liftManager->Liftmove(0, scaleheight, 0);
+				this->driveManager->autoDelay(2, true);
+			break;
+		case 5: this->driveManager->TurnWatch(-45, 4);
+				this->driveManager->autoDelay(4, true);
+			break;
+		case 6: this->driveManager->ResetSensors();
+				this->driveManager->FindStartEnc();
+			break;
+		case 7: this->driveManager->DriveNew(0.75, 15);
+				this->intakeManager->IntakemoveImproved(0.5, true); //pick up cube
+				this->driveManager->autoDelay(4, true);
+			break;
+		case 8: this->driveManager->DriveNew(0.75, -15);
+				this->intakeManager->IntakemoveImproved(0, true);
+				this->driveManager->autoDelay(4, true);
+			break;
+		case 9: this->driveManager->TurnWatch(45, 4);
+				 this->driveManager->autoDelay(4, true);
+				 this->intakeManager->IntakemoveImproved(0, true);
+			break;
+		case 10: this->driveManager->ResetSensors();
+				 this->driveManager->FindStartEnc();
+			break;
+		case 11: this->liftManager->Liftmove(switchheight, scaleheight, 0);
+				this->intakeManager->IntakemoveImproved(0, true);
+				this->driveManager->autoDelay(2, true);
+			break;
+		case 12: this->driveManager->DriveNew(0.75, 25);
+				 this->intakeManager->IntakemoveImproved(0, true);
+				 this->driveManager->autoDelay(4, true);
+			break;
+		case 13: this->intakeManager->IntakemoveImproved(-1, false);
+			break;
+	}
+}
 
+void AutoManager::centerLeftMultiBoxSwitch() {
+	switch(autostep){
+		case 0: this->liftManager->Liftmove(switchheight, scaleheight, 0);
+				this->intakeManager->Intakemove(0, true);
+				this->driveManager->autoDelay(2, true);
+			break;
+		case 1: this->driveManager->Drive(0.75, 20);
+				this->intakeManager->Intakemove(0, true);
+				this->driveManager->autoDelay(5, true);
+			break;
+		case 2: this->driveManager->TurnWatch(-90, 0.75); // Postive to Turn Right
+				this->intakeManager->Intakemove(0, true);
+				this->driveManager->autoDelay(3, true);
+			break;
+		case 3: this->driveManager->ResetSensors();
+				this->driveManager->FindStartEnc();
+			break;
+		case 4 : this->driveManager->Drive(0.75, 78);
+				 this->intakeManager->Intakemove(0, true);
+				 this->driveManager->autoDelay(5, true);
+			break;
+		case 5: this->driveManager->TurnWatch(90, 0.75);
+				this->intakeManager->Intakemove(0, true);
+				this->driveManager->autoDelay(3, true);
+			break;
+		case 6: this->driveManager->ResetSensors();
+				this->driveManager->FindStartEnc();
+			break;
+		case 7: this->driveManager->Drive(0.75, 65);
+				this->intakeManager->Intakemove(0, true);
+				this->driveManager->autoDelay(5, true);
+			break;
+		case 8: this->intakeManager->Intakemove(-1, false);
+				this->driveManager->autoDelay(3, true);
+			break;
+		case 9: this->driveManager->DriveNew(0.75, -25);
+				this->intakeManager->IntakemoveImproved(0, true);
+				this->driveManager->autoDelay(5, true);
+			break;
+		case 10: this->liftManager->Liftmove(0, scaleheight, 0);
+				 this->intakeManager->IntakemoveImproved(0, true);
+				 this->driveManager->autoDelay(2, true);
+			break;
+		case 11: this->driveManager->TurnWatch(45, 4);
+				 this->intakeManager->IntakemoveImproved(0, true);
+				 this->driveManager->autoDelay(3, true);
+			break;
+		case 12: this->driveManager->ResetSensors();
+				 this->driveManager->FindStartEnc();
+			break;
+		case 13: this->driveManager->DriveNew(0.75, 25);
+				 this->intakeManager->IntakemoveImproved(0.5, true);
+				 this->driveManager->autoDelay(5, true);
+			break;
+		case 14: this->driveManager->DriveNew(0.75, -25);
+				 this->intakeManager->IntakemoveImproved(0, true);
+				 this->driveManager->autoDelay(5, true);
+			break;
+		case 15: this->driveManager->TurnWatch(-45, 4);
+				 this->intakeManager->IntakemoveImproved(0, true);
+				 this->driveManager->autoDelay(3, true);
+			break;
+		case 16: this->driveManager->DriveNew(0.75, 25);
+				 this->intakeManager->IntakemoveImproved(0, true);
+				 this->driveManager->autoDelay(5, true);
+			break;
+		case 17: this->intakeManager->IntakemoveImproved(-1, false);
+			break;
+	}
+}
+
+void AutoManager::centerLeftMultiBoxVault() {
+	switch(autostep){
+		case 0: this->liftManager->Liftmove(switchheight, scaleheight, 0);
+				this->intakeManager->Intakemove(0, true);
+				this->driveManager->autoDelay(2, true);
+			break;
+		case 1: this->driveManager->Drive(0.75, 20);
+				this->intakeManager->Intakemove(0, true);
+				this->driveManager->autoDelay(5, true);
+			break;
+		case 2: this->driveManager->TurnWatch(-90, 0.75); // Postive to Turn Right
+				this->intakeManager->Intakemove(0, true);
+				this->driveManager->autoDelay(3, true);
+			break;
+		case 3: this->driveManager->ResetSensors();
+				this->driveManager->FindStartEnc();
+			break;
+		case 4 : this->driveManager->Drive(0.75, 78);
+				 this->intakeManager->Intakemove(0, true);
+				 this->driveManager->autoDelay(5, true);
+			break;
+		case 5: this->driveManager->TurnWatch(90, 0.75);
+				this->intakeManager->Intakemove(0, true);
+				this->driveManager->autoDelay(3, true);
+			break;
+		case 6: this->driveManager->ResetSensors();
+				this->driveManager->FindStartEnc();
+			break;
+		case 7: this->driveManager->Drive(0.75, 65);
+				this->intakeManager->Intakemove(0, true);
+				this->driveManager->autoDelay(5, true);
+			break;
+		case 8: this->intakeManager->Intakemove(-1, false);
+				this->driveManager->autoDelay(3, true);
+			break;
+		case 9: this->driveManager->DriveNew(0.75, -25);
+				this->intakeManager->IntakemoveImproved(0, true);
+				this->driveManager->autoDelay(5, true);
+			break;
+		case 10: this->liftManager->Liftmove(0, scaleheight, 0);
+				 this->intakeManager->IntakemoveImproved(0, true);
+				 this->driveManager->autoDelay(2, true);
+			break;
+		case 11: this->driveManager->TurnWatch(45, 4);
+				 this->intakeManager->IntakemoveImproved(0, true);
+				 this->driveManager->autoDelay(3, true);
+			break;
+		case 12: this->driveManager->ResetSensors();
+				 this->driveManager->FindStartEnc();
+			break;
+		case 13: this->driveManager->DriveNew(0.75, 25);
+				 this->intakeManager->IntakemoveImproved(0.5, true); //pick up cube
+				 this->driveManager->autoDelay(5, true);
+			break;
+		case 14: this->driveManager->DriveNew(0.75, -25);
+				 this->intakeManager->IntakemoveImproved(0, true);
+				 this->driveManager->autoDelay(5, true);
+			break;
+		case 15: this->driveManager->TurnWatch(135, 4);
+				 this->intakeManager->IntakemoveImproved(0, true);
+				 this->driveManager->autoDelay(4, true);
+			break;
+		case 16: this->driveManager->DriveNew(0.75, 90);
+				 this->intakeManager->IntakemoveImproved(0, true);
+				 this->driveManager->autoDelay(5, true);
+			break;
+		case 17: this->intakeManager->IntakemoveImproved(-1, false);
+			break;
+	}
+}

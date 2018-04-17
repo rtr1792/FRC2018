@@ -149,9 +149,9 @@ DriveManager::DriveManager() {
 	srx1->GetSensorCollection().SetQuadraturePosition(0,10);
 	srx2->GetSensorCollection().SetQuadraturePosition(0,10);
 }
-int delayLoop = 0;
-int loopCount = 0;
-double boost = 0;
+int delayLoop = 0;  //loop counter for delay/skip function
+int loopCount = 0;	//loop counter for the auto turn boost
+double boost = 0;	//starting value for the auto boost
 
 double want = 0;
 double gyro = 0;
@@ -475,7 +475,7 @@ if (goDistance > 0 or goDistance == 0) {
 else { //the backward drive code
 	z = ((gyro - want) * turnk);
 	if ((LeftDist+RightDist)/2 > goDistance) { //This now measures the average displacement vs the target displacement
-		m_robotDrive->ArcadeDrive(speed, z);
+		m_robotDrive->ArcadeDrive(-speed, z);
 		frc::SmartDashboard::PutNumber("motorSpeed",speed);
 		frc::SmartDashboard::PutNumber("AutoDistance",goDistance);
 	}
@@ -500,13 +500,13 @@ else { //the backward drive code
 	frc::SmartDashboard::PutNumber("m6",m6);
 }
 
-void DriveManager::TurnWatch(int angle, double waitTime){
+void DriveManager::TurnWatch(int angle, double waitTime){  //turns during the auto and boosts turning if it gets stuck
 	double z;
 	double turnk = -0.015; //Bigger Numbers ARE FASTER (away from zero)
 	double want = angle;
-	double time;
+	double time = 0;
 	//double allowederror = 5;
-	if (loopCount == 0) {
+	if (loopCount == 0) {  //starts the timer and delays getting the value to avoid errors
 	turnTimer->Start();
 	}
 	if (loopCount > 0) {
@@ -521,7 +521,7 @@ void DriveManager::TurnWatch(int angle, double waitTime){
 	}
 
 	gyro = ahrs->GetAngle();
-	z = ((gyro - want) * (turnk + boost));
+	z = ((gyro - want) * (turnk + boost)); //adding the boost
 	loopCount++;
 	if(fabs(gyro-angle)< 4){  //hardcode 5 as tolerance
 		turnTimer->Stop();
@@ -540,8 +540,9 @@ void DriveManager::TurnWatch(int angle, double waitTime){
 	frc::SmartDashboard::PutNumber("autoTurnWaitTime", waitTime);
 }
 
+//a delay for the auto or skips the step it it takes to long, it informs the driver station if it had to skip a step
 void DriveManager::autoDelay(int delay, bool skipOrWait) {
-	double delayTime;
+	double delayTime = 0;
 	if (delayLoop == 0) {
 	delayTimer->Start();
 	}
@@ -550,10 +551,7 @@ void DriveManager::autoDelay(int delay, bool skipOrWait) {
 	}
 
 	delayLoop++;
-	if (delay >= delayTime) {
-
-	}
-	else {
+	if (delay <= delayTime) { //determines if the time meets the required delay
 		delayTimer->Stop();
 		delayTimer->Reset();
 		delayLoop = 0;
@@ -562,6 +560,8 @@ void DriveManager::autoDelay(int delay, bool skipOrWait) {
 			skipCount++;
 		}
 	}
-
+	if (skipCount >= 3) { // if it skips to many steps in auto stop the auto
+		autostep = 9001; //IT'S OVER 9000!!!!!!!!!!!!!!
+	}
 }
 

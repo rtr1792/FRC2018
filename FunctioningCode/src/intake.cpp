@@ -126,4 +126,28 @@ void IntakeManager::Intakemove(double speed, bool ultraenable) {
 	}
 }
 
+void IntakeManager::IntakemoveImproved(double speed, bool ultraenable) {
+	srx1->Set(speed);
+	srx2->Set(-speed);
+	double k = 0.07;
+	double ultd = ult->GetRangeInches();
+	frc::SmartDashboard::PutNumber("In",ultd);
+	double ultd2 = ult2->GetRangeInches();
+	frc::SmartDashboard::PutNumber("In2",ultd2);
+	if(ultraenable){  // Ultrasonic tells the intake to always run per Ultraenable
+		if ((ultd > ultramin and ultd < ultramax)) {
+			srx1->Set(ultd * k);
+		}
+
+		if ((ultd2 > ultramin and ultd2 < ultramax)) {
+			srx2->Set(-(ultd2 * k));
+		}
+	}
+	if(ultd > 16 && ultd2 > 16 && !ultraenable){
+		autostep++;
+		srx1->Set(0);
+		srx2->Set(0);
+	}
+}
+
 

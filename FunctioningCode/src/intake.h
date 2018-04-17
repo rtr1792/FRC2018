@@ -25,6 +25,7 @@ public:
 	IntakeManager();
 	void Intake();
 	void Intakemove(double speed, bool ultraenable);
+	void IntakemoveImproved(double speed, bool ultraenable);
 };
 
 #endif /* SRC_SUBCLASS_INTAKE_H_ */

@@ -36,9 +36,12 @@ public:
 	void ScaleLeft();  // Scale is on the Left side to Score
 	void crossScoreLeft();
 	void crossScoreRight();
-	void turnTest(); //remove later
+	void turnTest(); //remove later (used for testing the new tur function
 	void CenterRightKick();  //same as CenterRight but incorporates new turning
 	void CenterLeftKick();  ///same as CenterLeft but incorporates new turning
+	void centerRightMultiBoxSwitch();
+	void centerLeftMultiBoxSwitch();
+	void centerLeftMultiBoxVault();
 };
 
 
