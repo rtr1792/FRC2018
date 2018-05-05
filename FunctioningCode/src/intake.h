@@ -10,8 +10,9 @@
 
 class IntakeManager {
 private:
-	WPI_TalonSRX *srx1;
-	WPI_TalonSRX *srx2;
+//  In = Intake
+	WPI_TalonSRX *srxIn1;
+	WPI_TalonSRX *srxIn2;
 	Ultrasonic *ult;
 	Ultrasonic *ult2;
 
@@ -25,6 +26,7 @@ public:
 	IntakeManager();
 	void Intake();
 	void Intakemove(double speed, bool ultraenable);
+	void IntakemoveImproved(double speed, bool ultraenable);
 };
 
 #endif /* SRC_SUBCLASS_INTAKE_H_ */

@@ -12,28 +12,30 @@
 
 class DriveManager {
 private:
-		WPI_TalonSRX *srx1;
-		WPI_TalonSRX *srx12;
-		WPI_TalonSRX *srx13;
+		WPI_TalonSRX *srxDtLm;
+		WPI_TalonSRX *srxDtLs1;
+		WPI_TalonSRX *srxDtLs2;
 
-		WPI_TalonSRX *srx2;
-		WPI_TalonSRX *srx21;
-		WPI_TalonSRX *srx22;
+		WPI_TalonSRX *srxDtRm;
+		WPI_TalonSRX *srxDtRs1;
+		WPI_TalonSRX *srxDtRs2;
 
 		DifferentialDrive *m_robotDrive;
 
 		Joystick *stick;
 		XboxController *xbox;
 
+		Timer *turnTimer;
+		Timer *delayTimer;
+
 		double *rightStickValue;
 		double *leftStickValue;
 		double *vel1;
 		double *vel2;
-		double *dis;
-		double *dis2;
+		double *dist;
+		double *dist2;
 		int *init;
 		int *one;
-
 
 	    AHRS *ahrs;
 public:
@@ -44,6 +46,9 @@ public:
 	void ResetSensors();
 	void setCoast();
 	void FindStartEnc();
+	void DriveNew(double speed, double goDistance);
+	void TurnWatch(int angle, double waitTime); //enhanced turn to increase power after a certain amount of time
+	void autoDelay(int delay, bool skipOrWait);
 };
 //	null ArcadeDrive(double, double, bool);
 

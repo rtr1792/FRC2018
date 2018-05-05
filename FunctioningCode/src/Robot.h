@@ -8,7 +8,10 @@
 #ifndef SRC_ROBOT_H_
 
 #define SRC_ROBOT_H_
+
 #endif /* SRC_ROBOT_H_ */
+
+//global variables
 const double testglobal = 1792;
 
 const double Autoline = 72;
@@ -23,13 +26,15 @@ const double FirstDriveSpeed = 0.75;
 const double SecondDriveSpeed = 0.35;
 
 
-const int driveheight = 32700;
+const int driveheight = 32700; //low scale hight
 const int switchheight = 12000;
 const int scaleheight = 36400;
 
 
 const double ultramax = 13;
 const double ultramin = 4.2;
+
+extern int skipCount; //amount of times a step in the auto was skipped
 
 extern int autostep;
 extern double LeftEncLast;

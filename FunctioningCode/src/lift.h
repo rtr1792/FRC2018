@@ -10,8 +10,9 @@
 
 class LiftManager {
 private:
-	WPI_TalonSRX *srx1;
-	WPI_TalonSRX *srx2;
+//Li = lift M = Master S = Slave
+	WPI_TalonSRX *srxLiM;
+	WPI_TalonSRX *srxLiS;
 
 	WPI_TalonSRX *DriveSRX1;
 	WPI_TalonSRX *DriveSRX2;

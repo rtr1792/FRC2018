@@ -20,8 +20,9 @@
 
 
 int autostep = 0;
+int skipCount = 0;
 std::string gameData;
-int autonum; // What the robot is doing
+int autonum; // What auto we are running
 int location; // Where the robot is starting
 double autodelay = 0;
 double timersec = 0;
@@ -47,6 +48,7 @@ private:
 	Timer *timer;
 
 	frc::Joystick stick { 0 };
+
 //	frc::XboxController xbox { 1 };
 	//double test;
 //	frc::PowerDistributionPanel pdp;
@@ -55,7 +57,7 @@ private:
 
 
 
-	void RobotInit() {
+	void RobotInit() {  //init the robot
 	}
 
 
@@ -65,11 +67,10 @@ private:
 		this->driveManager->setCoast();
 		//this->liftManager->Lift(scaleheight, switchheight, driveheight); //Setup Talon PID Loop Just incase and to Ensure everything is new
 		autostep = 0;
+		skipCount = 0;
 		//frc::SmartDashboard::PutNumber("AutoDelay", 0);
 		//frc::SmartDashboard::PutNumber("AutoNumber", 0);
 		//frc::SmartDashboard::PutNumber("AutoLocation", 0);
-
-
 	}
 
 	void AutonomousPeriodic() {
@@ -82,6 +83,8 @@ private:
 		gameData = frc::DriverStation::GetInstance().GetGameSpecificMessage();
 		frc::SmartDashboard::PutString("Field Data", gameData);
 
+		frc::SmartDashboard::PutNumber("autoSkipCount", skipCount);
+
 		//this->driveManager->Drive(0.75, ToSwitch);
 		frc::SmartDashboard::PutNumber("AutoStep", autostep);
 		if(autodelay <= 0){
@@ -90,14 +93,27 @@ private:
 		}
 		timersec = timer->Get();
 		if(timersec >= autodelay || autodelay == 0){
-			if(autonum == 4){
+			if(autonum == 8){
 				this->autoManager->StraightLine();
 			}
-			if(autonum == 2){
-				this->autoManager->ScaleRight();
+			if(autonum == 2 && location == 3){
+				if(gameData[1] == 'R'){ 	//Look only for second character - Hope for right
+					this->autoManager->ScaleRight();
+				}
+				else {
+					this->autoManager->StraightLine();
+				}
+			}
+			if(autonum == 2 && location == 1){
+				if(gameData[1] == 'L'){		// Look only for second character - Hope for left
+					this->autoManager->ScaleLeft();
+				}
+				else {
+					this->autoManager->StraightLine();
+				}
 			}
 			if(location == 3 && autonum == 1){
-				if(gameData[0] == 'R'){//look for first character only - Hope for Right
+				if(gameData[0] == 'R'){		//look for first character only - Hope for Right
 					this->autoManager->SwitchRight();
 				}
 				else{
@@ -105,7 +121,7 @@ private:
 				}
 			}
 			if(location == 1 && autonum == 1){
-				if(gameData[0] == 'L'){//look for first character only - Hope for Left
+				if(gameData[0] == 'L'){		//look for first character only - Hope for Left
 					this->autoManager->SwitchLeft(); //Score on the Left when starting on the Left
 				}
 				else{
@@ -113,13 +129,85 @@ private:
 				}
 			}
 			if(location == 2 && autonum == 1){
-				if(gameData[0] == 'L'){//look for first character only
+				if(gameData[0] == 'L'){		//look for first character only
 					this->autoManager->CenterLeft(); //Score on the Left when starting Center
 					//this->autoManager->StraightLine();
 				}
 				else{//Not Left Do Right
 					this->autoManager->CenterRight(); // Score on the Right when starting Center
 				}
+			}
+			if(location == 1 && autonum == 3) { 	 //robot pritorizes switch but goes to scale if we don't own the switch
+				if(gameData[0] == 'L') {
+					this->autoManager->SwitchLeft();
+				}
+				else if (gameData[1] == 'L' && gameData[0] == 'R') {
+					this->autoManager->ScaleLeft();
+				}
+				else if (gameData[0] == 'R' && gameData[1] == 'R') {
+					this->autoManager->StraightLine();
+				}
+			}
+			if(location == 1 && autonum == 4) { 	//robot pritorizes scale but goes to switch if we don't own the scale
+				if(gameData[1] == 'L') {
+					this->autoManager->ScaleLeft();
+				}
+				else if (gameData[0] == 'L' && gameData[1] == 'R') {
+					this->autoManager->SwitchLeft();
+				}
+				else if (gameData[0] == 'R' && gameData[1] == 'R') {
+					this->autoManager->StraightLine();
+				}
+			}
+			if(location == 3 && autonum == 3) { 	//robot pritorizes switch but goes to scale if we don't own the switch
+				if(gameData[0] == 'R') {
+					this->autoManager->SwitchRight();
+				}
+				else if (gameData[1] == 'R' && gameData[0] == 'L') {
+					this->autoManager->ScaleRight();
+				}
+				else if (gameData[0] == 'L' && gameData[1] == 'L') {
+					this->autoManager->StraightLine();
+				}
+			}
+			if(location == 3 && autonum == 4) { 	//robot pritorizes scale but goes to switch if we don't own the scale
+				if(gameData[1] == 'R') {
+					this->autoManager->ScaleRight();
+				}
+				else if (gameData[0] == 'R' && gameData[1] == 'L') {
+					this->autoManager->SwitchRight();
+				}
+				else if (gameData[0] == 'L' && gameData[1] == 'L') {
+					this->autoManager->StraightLine();
+				}
+			}
+			if (location == 3 and autonum == 6) { // starts on right and scores on our side of the scale
+				if (gameData[1] == 'R') {
+					this->autoManager->ScaleRight();
+				}
+				else {
+					this->autoManager->crossScoreLeft();
+				}
+			}
+			if (location == 1 and autonum == 6) { // starts on left and scores on our side of the scale
+				if (gameData[1] == 'L') {
+					this->autoManager->ScaleLeft();
+				}
+				else {
+					this->autoManager->crossScoreRight();
+				}
+			}
+			if (autonum == 10) {
+				this->autoManager->turnTest();
+			}
+			if (autonum == 11){
+				this->autoManager->CenterLeftKick();
+			}
+			if(autonum == 1792){
+				this->autoManager->centerLeftMultiBoxSwitch();
+			}
+			if(autonum == 1793){
+				this->autoManager->centerRightMultiBoxSwitch();
 			}
 		}
 	}
